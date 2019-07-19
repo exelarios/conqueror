@@ -7,7 +7,12 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0820799C22D5A4360055659C /* SDL2_image.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0820799B22D5A4360055659C /* SDL2_image.framework */; };
 		083F2D7422D5867700FEC2FF /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 083F2D7322D5867700FEC2FF /* main.cpp */; };
+		083F2D7E22D588C100FEC2FF /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 083F2D7D22D588C100FEC2FF /* Cocoa.framework */; };
+		083F2D7F22D588DC00FEC2FF /* SDL2.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 083F2D7B22D5887000FEC2FF /* SDL2.framework */; };
+		0868B6C122DEF7A900E1F435 /* graphics.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0868B6C022DEF7A900E1F435 /* graphics.cpp */; };
+		08FD952F22E17DAB00F774A3 /* SDL2_ttf.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 08FD952E22E17DAB00F774A3 /* SDL2_ttf.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -23,8 +28,16 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		0820799B22D5A4360055659C /* SDL2_image.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL2_image.framework; path = ../../../../Library/Frameworks/SDL2_image.framework; sourceTree = "<group>"; };
+		0820C74022DEFDFC00B31BF9 /* manager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = manager.h; sourceTree = "<group>"; };
 		083F2D7022D5867700FEC2FF /* conqueror */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = conqueror; sourceTree = BUILT_PRODUCTS_DIR; };
 		083F2D7322D5867700FEC2FF /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
+		083F2D7B22D5887000FEC2FF /* SDL2.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL2.framework; path = ../../../../Library/Frameworks/SDL2.framework; sourceTree = "<group>"; };
+		083F2D7D22D588C100FEC2FF /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
+		0868B6BA22DEB85B00E1F435 /* mainLogo.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = mainLogo.png; sourceTree = "<group>"; };
+		0868B6BE22DEF5FB00E1F435 /* graphics.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = graphics.h; sourceTree = "<group>"; };
+		0868B6C022DEF7A900E1F435 /* graphics.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = graphics.cpp; sourceTree = "<group>"; };
+		08FD952E22E17DAB00F774A3 /* SDL2_ttf.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL2_ttf.framework; path = ../../../../Library/Frameworks/SDL2_ttf.framework; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -32,17 +45,38 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				08FD952F22E17DAB00F774A3 /* SDL2_ttf.framework in Frameworks */,
+				0820799C22D5A4360055659C /* SDL2_image.framework in Frameworks */,
+				083F2D7F22D588DC00FEC2FF /* SDL2.framework in Frameworks */,
+				083F2D7E22D588C100FEC2FF /* Cocoa.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		08247FA922DD2B1400B6861F /* assets */ = {
+			isa = PBXGroup;
+			children = (
+				08247FAA22DD2B2100B6861F /* images */,
+			);
+			path = assets;
+			sourceTree = "<group>";
+		};
+		08247FAA22DD2B2100B6861F /* images */ = {
+			isa = PBXGroup;
+			children = (
+				0868B6BA22DEB85B00E1F435 /* mainLogo.png */,
+			);
+			path = images;
+			sourceTree = "<group>";
+		};
 		083F2D6722D5867700FEC2FF = {
 			isa = PBXGroup;
 			children = (
 				083F2D7222D5867700FEC2FF /* conqueror */,
 				083F2D7122D5867700FEC2FF /* Products */,
+				083F2D7A22D5887000FEC2FF /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -57,9 +91,40 @@
 		083F2D7222D5867700FEC2FF /* conqueror */ = {
 			isa = PBXGroup;
 			children = (
+				08CC2E3D22DEFCF400BC41AD /* headers */,
+				0868B6C022DEF7A900E1F435 /* graphics.cpp */,
+				0868B6BF22DEF76A00E1F435 /* src */,
 				083F2D7322D5867700FEC2FF /* main.cpp */,
 			);
 			path = conqueror;
+			sourceTree = "<group>";
+		};
+		083F2D7A22D5887000FEC2FF /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				08FD952E22E17DAB00F774A3 /* SDL2_ttf.framework */,
+				0820799B22D5A4360055659C /* SDL2_image.framework */,
+				083F2D7D22D588C100FEC2FF /* Cocoa.framework */,
+				083F2D7B22D5887000FEC2FF /* SDL2.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		0868B6BF22DEF76A00E1F435 /* src */ = {
+			isa = PBXGroup;
+			children = (
+				08247FA922DD2B1400B6861F /* assets */,
+			);
+			path = src;
+			sourceTree = "<group>";
+		};
+		08CC2E3D22DEFCF400BC41AD /* headers */ = {
+			isa = PBXGroup;
+			children = (
+				0820C74022DEFDFC00B31BF9 /* manager.h */,
+				0868B6BE22DEF5FB00E1F435 /* graphics.h */,
+			);
+			path = headers;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -118,6 +183,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0868B6C122DEF7A900E1F435 /* graphics.cpp in Sources */,
 				083F2D7422D5867700FEC2FF /* main.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -240,6 +306,10 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(LOCAL_LIBRARY_DIR)/Frameworks",
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
@@ -248,6 +318,10 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(LOCAL_LIBRARY_DIR)/Frameworks",
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;
