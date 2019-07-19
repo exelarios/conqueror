@@ -10,92 +10,62 @@ using namespace std;
 
 const int WIDTH = 1500, HEIGHT = 1000;
 
+bool init();
+bool loadMedia();
+void close();
+
 SDL_Window* gWindow = NULL;
 SDL_Renderer* gRenderer = NULL;
-TTF_Font* gFont = NULL;
+SDL_Surface* imageSurface = NULL;
+SDL_Surface* windowSurface = NULL;
+//LTexture gTextTexture;
 
-void gameMenu(){
+bool init(){
     
-}
-
-class LTexture {
+    bool success = true;
     
-public:
-    LTexture();
-    
-    ~LTexture();
-    
-    bool loadFromTitle( std::string path);
-    
-    bool loadFromRenderedText (std::string textureText, SDL_Color textColor);
-    
-    void free();
-    
-    void setColor (Uint8 red, Uint8 green, Uint8 blue);
-    
-    void setBlendMode (SDL_BlendMode blending);
-    
-    void setAlpha (Uint8 alpha);
-    
-    void render (int x, int y, SDL_Rect* clip = NULL, double angle = 0.0, SDL_Point* center = NULL, SDL_RendererFlip flip = SDL_FLIP_NONE);
-    
-    int getWidth();
-    int getHeight();
-
-private:
-    
-    SDL_Texture* mTexture;
-    int mWidth;
-    int mHeight;
-    
-};
-
-bool LTexture::loadFromRenderedText(std::string textureText, SDL_Color textColor){
-    free();
-    
-    SDL_Surface* textSurface = TTF_RenderText_Solid( gFont, textureText.c_str(), textColor);
-    
-    if( textSurface == NULL){
-        printf("Unable to render text surface! SDL_ttf Error: %s\n", TTF_GetError() );
-    } else{
-        
-        mTexture = SDL_CreateTextureFromSurface(gRenderer, textSurface);
-        if (mTexture == NULL){
-            printf( "Unable to create texture from rendered text! SDL Error: %s\n", SDL_GetError() );
-        } else{
-            mWidth = textSurface->w;
-            mHeight = textSurface->h;
-        }
-        
-        SDL_FreeSurface( textSurface );
-    }
-    return mTexture != NULL;
-}
-
-int main(){
-    
-    SDL_Surface* imageSurface = NULL;
-    SDL_Surface* windowSurface = NULL;
-    LTexture gTextTexture;
-
-    
-    
-    
-    // Initalzing Window
     if (SDL_Init(SDL_INIT_EVERYTHING) < 0 ) {
         cout << "SDL Couldn't be initialized. SDL Error!" << SDL_GetError() << endl;
     }
+    gWindow = SDL_CreateWindow("Conqueror", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WIDTH, HEIGHT, SDL_WINDOW_ALLOW_HIGHDPI);
+    windowSurface = SDL_GetWindowSurface(gWindow);
+    if (NULL == gWindow){
+        cout << "Couldn't render window." << SDL_GetError() << endl;
+        success = false;
+    }
+    
+    return success;
+}
+
+bool loadMedia(){
+    
+    bool success = true;
+    
+    return success;
+}
+
+void close(){
+    
+    SDL_FreeSurface(imageSurface);
+    SDL_FreeSurface(windowSurface);
+    
+    imageSurface = NULL;
+    windowSurface = NULL;
+    
+    SDL_DestroyWindow(gWindow);
+    IMG_Quit();
+    SDL_Quit();
+}
+
+
+int main(){
+    
+    bool success = true;
+    
+    // Initalzing Window
+    
     IMG_Init(IMG_INIT_PNG);
     
-    SDL_Window* window = SDL_CreateWindow("Conqueror", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WIDTH, HEIGHT, SDL_WINDOW_ALLOW_HIGHDPI);
-    
-    
-    windowSurface = SDL_GetWindowSurface(window);
-    
-    if (NULL == window){
-        cout << "Couldn't render window." << SDL_GetError() << endl;
-        return EXIT_FAILURE;
-    }
     
     //intialzing PNG Loading
     SDL_Rect imagePosition;
@@ -107,45 +77,44 @@ int main(){
     
     if ( NULL == imageSurface){
         cout << "SDL couldn't load image! SDL Error: " << SDL_GetError() << endl;
+        success = false;
     }
     
     //Initalzing TTF_Font
     int imgFlags = IMG_INIT_PNG;
     if (!( IMG_Init(imgFlags) * imgFlags)){
         printf( "SDL_image could not initialize! SDL_image Error: %s\n", IMG_GetError() );
-        return EXIT_FAILURE;
+        success = false;
     }
     
     if( TTF_Init() == -1){
         printf( "SDL_ttf could not initialize! SDL_ttf Error: %s\n", TTF_GetError() );
-        return EXIT_FAILURE;
+        success = false;
     }
     
     SDL_Event windowEvent;
     
     
     // Running the Window; Needs to loop in order for the window to be opened.
+    if(!init()){
+        printf( "Failed to initialize!\n" );
+    } else {
+        if ( !loadMedia()) {
+            printf( "Failed to load media!\n" );
+        } else {
+            SDL_BlitSurface( imageSurface, NULL, windowSurface, &imagePosition);
+        }
+    }
     while(true){
         if (SDL_PollEvent(&windowEvent)){
             if (SDL_QUIT == windowEvent.type){
                 break;
             }
         }
-        
-        SDL_BlitSurface( imageSurface, NULL, windowSurface, &imagePosition);
-        
-        SDL_UpdateWindowSurface(window);
+        SDL_UpdateWindowSurface(gWindow);
     }
     
-    SDL_FreeSurface(imageSurface);
-    SDL_FreeSurface(windowSurface);
+    close();
     
-    imageSurface = NULL;
-    windowSurface = NULL;
-    
-    IMG_Quit();
-    SDL_DestroyWindow(window);
-    SDL_Quit();
-    
-    return EXIT_SUCCESS;
+    return 0;
 }
