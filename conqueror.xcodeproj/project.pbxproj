@@ -34,6 +34,7 @@
 		083F2D7D22D588C100FEC2FF /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		0868B6BA22DEB85B00E1F435 /* mainLogo.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = mainLogo.png; sourceTree = "<group>"; };
 		0870536622E26140008A28C9 /* swirl_effect.bmp */ = {isa = PBXFileReference; lastKnownFileType = image.bmp; path = swirl_effect.bmp; sourceTree = "<group>"; };
+		0870536722E270C9008A28C9 /* SFNS.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = SFNS.ttf; sourceTree = "<group>"; };
 		08FB051E22E1A33E0053B349 /* LTexture.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LTexture.h; sourceTree = "<group>"; };
 		08FD952E22E17DAB00F774A3 /* SDL2_ttf.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL2_ttf.framework; path = ../../../../Library/Frameworks/SDL2_ttf.framework; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -90,6 +91,7 @@
 		083F2D7222D5867700FEC2FF /* conqueror */ = {
 			isa = PBXGroup;
 			children = (
+				0870536722E270C9008A28C9 /* SFNS.ttf */,
 				08CC2E3D22DEFCF400BC41AD /* headers */,
 				0868B6BF22DEF76A00E1F435 /* src */,
 				083F2D7322D5867700FEC2FF /* main.cpp */,
