@@ -67,10 +67,6 @@ bool init(){
     return success;
 }
 
-
-
-
-
 int main(){
     bool success = true;
     
@@ -82,16 +78,26 @@ int main(){
     
     SDL_Color textColor = { 255, 255, 255 };
     
-    SDL_Surface* SurfaceMessage = TTF_RenderText_Solid(gFont, "PLEASE FUCKIN WORK", textColor);
+    SDL_Surface* SurfaceMessage = TTF_RenderText_Solid(gFont, "PLEASE WORK", textColor);
+    if (!SurfaceMessage){
+        cout << "Failed to load texture surface.\n";
+    }
     SDL_Texture* Message = SDL_CreateTextureFromSurface(gRenderer, SurfaceMessage);
+    if (!Message){
+        cout << "Failed to load texture surface.\n";
+    }
+    SDL_DestroyTexture(Message);
+    SDL_FreeSurface(SurfaceMessage);
+    
+
+    
+
     
     SDL_Rect Message_rect; //create a rect
     Message_rect.x = 0;  //controls the rect's x coordinate
     Message_rect.y = 0; // controls the rect's y coordinte
     Message_rect.w = 100; // controls the width of the rect
     Message_rect.h = 100; // controls the height of the rect
-    
-    IMG_Init(IMG_INIT_PNG);
     
     SDL_Event windowEvent;
     
@@ -110,6 +116,7 @@ int main(){
     block.h = 200;
     block.x = (WIDTH / 2) - (block.w / 2);
     block.y = (HEIGHT / 2) - (block.h / 2);
+    int blockSpeed = 10;
     
     while(true){
         
@@ -122,19 +129,19 @@ int main(){
                 case SDL_KEYDOWN:
                     switch (windowEvent.key.keysym.sym){
                         case SDLK_w:{
-                            block.y -= 10;
+                            block.y -= blockSpeed;
                             break;
                         }
                         case SDLK_a:{
-                            block.x -= 10;
+                            block.x -= blockSpeed;
                             break;
                         }
                         case SDLK_s:{
-                            block.y += 10;
+                            block.y += blockSpeed;
                             break;
                         }
                         case SDLK_d:{
-                            block.x += 10;
+                            block.x += blockSpeed;
                             break;
                         }
                         case SDLK_ESCAPE:{
@@ -157,7 +164,7 @@ int main(){
         SDL_RenderFillRect(gRenderer, &block);
         
         
-        SDL_RenderCopy(gRenderer, Message, NULL, &Message_rect);
+        SDL_RenderCopy(gRenderer, Message, NULL, NULL);
         
         SDL_RenderPresent(gRenderer);
         //SDL_BlitSurface( imageSurface, NULL, gRenderer, &imagePosition);
