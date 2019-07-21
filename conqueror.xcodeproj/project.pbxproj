@@ -33,6 +33,8 @@
 		083F2D7B22D5887000FEC2FF /* SDL2.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL2.framework; path = ../../../../Library/Frameworks/SDL2.framework; sourceTree = "<group>"; };
 		083F2D7D22D588C100FEC2FF /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		084CC1B122E2F268008E22AC /* OpenSans-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "OpenSans-Regular.ttf"; path = "../../../Downloads/open-sans/OpenSans-Regular.ttf"; sourceTree = "<group>"; };
+		084CC1B322E30E96008E22AC /* sketchy.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = sketchy.ttf; path = ../../../Downloads/sketchy.ttf; sourceTree = "<group>"; };
+		084CC1B422E3A723008E22AC /* icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = icon.png; sourceTree = "<group>"; };
 		0868B6BA22DEB85B00E1F435 /* mainLogo.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = mainLogo.png; sourceTree = "<group>"; };
 		0870536622E26140008A28C9 /* swirl_effect.bmp */ = {isa = PBXFileReference; lastKnownFileType = image.bmp; path = swirl_effect.bmp; sourceTree = "<group>"; };
 		08FB051E22E1A33E0053B349 /* LTexture.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LTexture.h; sourceTree = "<group>"; };
@@ -65,6 +67,7 @@
 		08247FAA22DD2B2100B6861F /* images */ = {
 			isa = PBXGroup;
 			children = (
+				084CC1B422E3A723008E22AC /* icon.png */,
 				0870536622E26140008A28C9 /* swirl_effect.bmp */,
 				0868B6BA22DEB85B00E1F435 /* mainLogo.png */,
 			);
@@ -91,6 +94,7 @@
 		083F2D7222D5867700FEC2FF /* conqueror */ = {
 			isa = PBXGroup;
 			children = (
+				084CC1B322E30E96008E22AC /* sketchy.ttf */,
 				084CC1B122E2F268008E22AC /* OpenSans-Regular.ttf */,
 				08CC2E3D22DEFCF400BC41AD /* headers */,
 				0868B6BF22DEF76A00E1F435 /* src */,
