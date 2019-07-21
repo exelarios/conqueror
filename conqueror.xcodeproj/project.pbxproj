@@ -37,6 +37,7 @@
 		084CC1B422E3A723008E22AC /* icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = icon.png; sourceTree = "<group>"; };
 		0868B6BA22DEB85B00E1F435 /* mainLogo.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = mainLogo.png; sourceTree = "<group>"; };
 		0870536622E26140008A28C9 /* swirl_effect.bmp */ = {isa = PBXFileReference; lastKnownFileType = image.bmp; path = swirl_effect.bmp; sourceTree = "<group>"; };
+		08DD33CF22E4411500848F82 /* testing.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = testing.cpp; sourceTree = "<group>"; };
 		08FB051E22E1A33E0053B349 /* LTexture.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LTexture.h; sourceTree = "<group>"; };
 		08FD952E22E17DAB00F774A3 /* SDL2_ttf.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL2_ttf.framework; path = ../../../../Library/Frameworks/SDL2_ttf.framework; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -126,6 +127,7 @@
 			isa = PBXGroup;
 			children = (
 				08FB051E22E1A33E0053B349 /* LTexture.h */,
+				08DD33CF22E4411500848F82 /* testing.cpp */,
 			);
 			path = headers;
 			sourceTree = "<group>";

@@ -5,6 +5,8 @@
 #include <string>
 #include <SDL2_ttf/SDL_ttf.h>
 #include <fstream>
+#include <chrono>
+#include <stdlib.h>
 
 #include "headers/LTexture.h"
 
@@ -17,38 +19,99 @@ bool loadMedia();
 void close();
 
 SDL_Texture* loadTexture( std::string path );
-SDL_Window* gWindow = NULL;
-SDL_Renderer* gRenderer = NULL;
-SDL_Texture* gTexture = NULL;
-TTF_Font* gFont = NULL;
-SDL_Surface* imageSurface = NULL;
+SDL_Window* gWindow = nullptr;
+SDL_Renderer* gRenderer = nullptr;
+SDL_Texture* gTexture = nullptr;
 SDL_Surface* favicon = NULL;
+TTF_Font *gFont = nullptr;
 
-SDL_Texture *LoadTexture(std::string filePath, SDL_Renderer *renderTarget){
+
+//Initalize Font
+SDL_Surface* textSurface = nullptr;
+SDL_Texture* text = nullptr;
+SDL_Rect textRect;
+SDL_Color textColor = { 255, 255, 255, 255};
+
+SDL_Texture *LoadTexture(std::string filePath, SDL_Renderer *renderTarget) {
     SDL_Texture *texture = nullptr;
     SDL_Surface *surface = IMG_Load(filePath.c_str());
-    if (surface == NULL){
-        cout << "Error on Surface\n";
-    } else{
+    if(surface == NULL)
+        std::cout << "Error" << std::endl;
+    else
+    {
         texture = SDL_CreateTextureFromSurface(renderTarget, surface);
-        if(texture == NULL){
-            cout << "Error on texture\n";
-        }
-        
-        SDL_FreeSurface(surface);
+        if(texture == NULL)
+            std::cout << "Error" << std::endl;
     }
     
-    return texture;
+    SDL_FreeSurface(surface);
     
+    return texture;
+}
+
+void printText(const std::string &Message, int xPos, int yPos){
+    
+    SDL_Surface* renderText = TTF_RenderText_Blended(gFont, Message.c_str(), textColor);
+    if (!renderText){
+        cout << "Failed to load CreateText surface.\n";
+    }
+    
+    SDL_Texture* textureText = SDL_CreateTextureFromSurface(gRenderer, renderText);
+    if (!text){
+        cout << "Failed to load texture surface.\n";
+    }
+    
+    SDL_Rect TextBlock;
+    TextBlock.x = xPos;
+    TextBlock.y = yPos;
+    
+    SDL_QueryTexture(textureText, NULL, NULL, &TextBlock.w, &TextBlock.h);
+    SDL_FreeSurface(renderText);
+    
+    renderText = nullptr;
+    
+    SDL_RenderCopy(gRenderer, textureText, NULL, &TextBlock);
+}
+
+void printText(const int &Message, int xPos, int yPos){
+    
+    SDL_Surface* renderText = TTF_RenderText_Blended(gFont, to_string(Message).c_str(), textColor);
+    if (!renderText){
+        cout << "Failed to load CreateText surface.\n";
+    }
+    
+    SDL_Texture* textureText = SDL_CreateTextureFromSurface(gRenderer, renderText);
+    if (!text){
+        cout << "Failed to load texture surface.\n";
+    }
+    
+    SDL_Rect TextBlock;
+    TextBlock.x = xPos;
+    TextBlock.y = yPos;
+    
+    SDL_QueryTexture(textureText, NULL, NULL, &TextBlock.w, &TextBlock.h);
+    SDL_FreeSurface(renderText);
+    
+    renderText = nullptr;
+    
+    SDL_RenderCopy(gRenderer, textureText, NULL, &TextBlock);
 }
 
 bool init(){
     
     bool success = true;
     
+    SDL_Init(SDL_INIT_VIDEO);
     if (SDL_Init(SDL_INIT_EVERYTHING) < 0 ) {
         cout << "SDL Couldn't be initialized. SDL Error!" << SDL_GetError() << endl;
     }
+    
+    int imgFlags = IMG_INIT_PNG | IMG_INIT_JPG;
+    if( IMG_Init(imgFlags) != imgFlags ) {
+        printf( "SDL_image could not initialize! SDL_image Error: %s\n", IMG_GetError() );
+        success = false;
+    }
+    
     gWindow = SDL_CreateWindow("Conqueror", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WIDTH, HEIGHT, SDL_WINDOW_ALLOW_HIGHDPI);
     if (NULL == gWindow){
         cout << "Couldn't render window." << SDL_GetError() << endl;
@@ -62,25 +125,35 @@ bool init(){
         success = false;
     }
     
-    //Initialize PNG loading
-    int imgFlags = IMG_INIT_PNG;
-    if( !( IMG_Init( imgFlags ) & imgFlags ) )
-    {
-        printf( "SDL_image could not initialize! SDL_image Error: %s\n", IMG_GetError() );
-        success = false;
-    }
-    
-    if ( NULL == imageSurface){
-        cout << "SDL couldn't load image! SDL Error: " << SDL_GetError() << endl;
-        success = false;
-    }
-    
-    //Initalzing TTF_Font
-    
-    if( TTF_Init() == -1){
+    if( TTF_Init() < 0){
         printf( "SDL_ttf could not initialize! SDL_ttf Error: %s\n", TTF_GetError() );
         success = false;
     }
+    
+    gFont = TTF_OpenFont("OpenSans-Regular.ttf", 100);
+    if (gFont == NULL){
+        printf( "Failed to load OpenSans font! SDL_ttf Error: %s\n", TTF_GetError() );
+        success = false;
+    }
+    
+    SDL_Color textColor = { 255, 255, 255, 255 };
+    
+    textSurface = TTF_RenderText_Blended(gFont, "TIMER:", textColor);
+    if (!textSurface){
+        cout << "Failed to load texture surface.\n";
+    }
+    
+    text = SDL_CreateTextureFromSurface(gRenderer, textSurface);
+    if (!text){
+        cout << "Failed to load texture surface.\n";
+    }
+    
+    textRect.x = textRect.y = 100;
+    
+    SDL_QueryTexture(text, NULL, NULL, &textRect.w, &textRect.h);
+    
+    SDL_FreeSurface(textSurface);
+    textSurface = nullptr;
     
     
     return success;
@@ -88,51 +161,15 @@ bool init(){
 
 int main(){
     bool success = true;
-    
-    SDL_Texture *currentImage = nullptr;
-    
-    currentImage = LoadTexture("icon.png", gRenderer);
-    
-    gFont = TTF_OpenFont("OpenSans-Regular.ttf", 28);
-    if (gFont == NULL){
-        printf( "Failed to load lazy font! SDL_ttf Error: %s\n", TTF_GetError() );
-        success = false;
-    }
-    
-    SDL_Color textColor = { 144, 77, 255, 255 };
-    SDL_Surface* textSurface = TTF_RenderText_Solid(gFont, "PLEASE WORK", textColor);
-    if (!textSurface){
-        cout << "Failed to load texture surface.\n";
-    }
-    SDL_Texture* text = SDL_CreateTextureFromSurface(gRenderer, textSurface);
-    if (!text){
-        cout << "Failed to load texture surface.\n";
-    }
-    
-    SDL_Rect textRect;
-    textRect.x = textRect.y = 0;
-    
-    SDL_QueryTexture(text, NULL, NULL, &textRect.w, &textRect.h);
-    
-    SDL_FreeSurface(textSurface);
-    textSurface = NULL;
-    
-    SDL_Rect Message_rect; //create a rect
-    Message_rect.x = 0;  //controls the rect's x coordinate
-    Message_rect.y = 0; // controls the rect's y coordinte
-    Message_rect.w = 100; // controls the width of the rect
-    Message_rect.h = 100; // controls the height of the rect
-    
+
     SDL_Event windowEvent;
-    
     
     // Running the Window; Needs to loop in order for the window to be opened.
     if(!init()){
         printf( "Failed to initialize!\n" );
-    } else {
-        if ( !loadMedia()) {
-            printf( "Failed to load media!\n" );
-        }
+    }
+    if ( !loadMedia()) {
+        printf( "Failed to load media!\n" );
     }
     
     SDL_Rect block;
@@ -143,7 +180,6 @@ int main(){
     int blockSpeed = 10;
     
     while(true){
-        
         if(SDL_PollEvent(&windowEvent)){
             switch (windowEvent.type){
                 case SDL_QUIT: {
@@ -182,19 +218,19 @@ int main(){
         SDL_SetRenderDrawColor(gRenderer, 0, 0, 255, 255);
         SDL_RenderClear(gRenderer);
         
-        
         SDL_SetRenderDrawColor(gRenderer, 200, 0, 255, 255);
         SDL_RenderFillRect(gRenderer, &block);
         
         SDL_RenderCopy(gRenderer, text, NULL, &textRect);
-        SDL_RenderCopy(gRenderer, gTexture, NULL, &textRect);
+        
+        
+        printText("Score", 500, 100);
+        
+        printText("Lives", 1000, 100);
+        
+        printText(500, 300, 500);
         
         SDL_RenderPresent(gRenderer);
-        //SDL_BlitSurface( imageSurface, NULL, gRenderer, &imagePosition);
-        //SDL_UpdateWindowSurface(gWindow);
-        //SDL_RenderCopy(gRenderer, Message, NULL, &Message_rect);
-        
-        text = NULL;
     }
     
     return success;
@@ -207,7 +243,6 @@ bool loadMedia(){
     
     
     SDL_Rect imagePosition;
-    imageSurface = IMG_Load("mainLogo.png");
     favicon = IMG_Load("icon.png");
     
     SDL_SetWindowIcon(gWindow, favicon);
@@ -223,15 +258,13 @@ bool loadMedia(){
 void close(){
     
     SDL_DestroyTexture( gTexture);
+    SDL_DestroyTexture(text);
     gTexture = NULL;
     
     
-    SDL_FreeSurface(imageSurface);
     
     TTF_CloseFont( gFont );
     gFont = NULL;
-    
-    imageSurface = NULL;
     
     SDL_RenderClear(gRenderer);
     SDL_DestroyWindow(gWindow);
