@@ -73,9 +73,9 @@ void printText(const std::string &Message, int xPos, int yPos){
     SDL_RenderCopy(gRenderer, textureText, NULL, &TextBlock);
 }
 
-void printText(const int &Message, int xPos, int yPos){
+void printText(const int &message, int xPos, int yPos){
     
-    SDL_Surface* renderText = TTF_RenderText_Blended(gFont, to_string(Message).c_str(), textColor);
+    SDL_Surface* renderText = TTF_RenderText_Blended(gFont, to_string(message).c_str(), textColor);
     if (!renderText){
         cout << "Failed to load CreateText surface.\n";
     }
@@ -161,7 +161,6 @@ bool init(){
 
 int main(){
     bool success = true;
-
     SDL_Event windowEvent;
     
     // Running the Window; Needs to loop in order for the window to be opened.
@@ -179,13 +178,12 @@ int main(){
     block.y = (HEIGHT / 2) - (block.h / 2);
     int blockSpeed = 10;
     
-    while(true){
+    while(success){
         if(SDL_PollEvent(&windowEvent)){
+            if (windowEvent.type == SDL_QUIT){
+                success = false;
+            }
             switch (windowEvent.type){
-                case SDL_QUIT: {
-                    close();
-                    break;
-                }
                 case SDL_KEYDOWN:
                     switch (windowEvent.key.keysym.sym){
                         case SDLK_w:{
@@ -205,7 +203,7 @@ int main(){
                             break;
                         }
                         case SDLK_ESCAPE:{
-                            close();
+                            success = false;
                             break;
                         }
                     }
@@ -215,7 +213,7 @@ int main(){
         }
         
         
-        SDL_SetRenderDrawColor(gRenderer, 0, 0, 255, 255);
+        SDL_SetRenderDrawColor(gRenderer, 0, 0, 0, 255);
         SDL_RenderClear(gRenderer);
         
         SDL_SetRenderDrawColor(gRenderer, 200, 0, 255, 255);
