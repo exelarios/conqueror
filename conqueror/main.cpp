@@ -5,10 +5,7 @@
 #include <string>
 #include <SDL2_ttf/SDL_ttf.h>
 #include <fstream>
-#include <chrono>
 #include <stdlib.h>
-
-#include "headers/LTexture.h"
 
 using namespace std;
 
@@ -23,14 +20,36 @@ SDL_Window* gWindow = nullptr;
 SDL_Renderer* gRenderer = nullptr;
 SDL_Texture* gTexture = nullptr;
 SDL_Surface* favicon = NULL;
-TTF_Font *gFont = nullptr;
 
 
 //Initalize Font
+TTF_Font* font300 = nullptr;
+TTF_Font* font100 = nullptr;
+TTF_Font* font50 = nullptr;
+
 SDL_Surface* textSurface = nullptr;
 SDL_Texture* text = nullptr;
-SDL_Rect textRect;
+SDL_Rect startRect;
 SDL_Color textColor = { 255, 255, 255, 255};
+
+SDL_Rect TextBlock;
+SDL_Rect textButton;
+
+SDL_Rect block;
+
+int score = 0;
+int rounds = 1;
+int lives = 20;
+int blockSpeed = 10;
+int timer = 100;
+
+bool success = true;
+
+bool isPlaying = false;
+bool inMenu = true;
+
+SDL_Surface* renderText = nullptr;
+SDL_Texture* textureText = nullptr;
 
 SDL_Texture *LoadTexture(std::string filePath, SDL_Renderer *renderTarget) {
     SDL_Texture *texture = nullptr;
@@ -49,57 +68,77 @@ SDL_Texture *LoadTexture(std::string filePath, SDL_Renderer *renderTarget) {
     return texture;
 }
 
-void printText(const std::string &Message, int xPos, int yPos){
+void printText(const std::string &Message, TTF_Font* fontType, SDL_Rect CreateRect, int xPos, int yPos){
     
-    SDL_Surface* renderText = TTF_RenderText_Blended(gFont, Message.c_str(), textColor);
+    renderText = TTF_RenderText_Blended(fontType, Message.c_str(), textColor);
     if (!renderText){
+        cout << "";
         cout << "Failed to load CreateText surface.\n";
     }
     
-    SDL_Texture* textureText = SDL_CreateTextureFromSurface(gRenderer, renderText);
-    if (!text){
-        cout << "Failed to load texture surface.\n";
+    textureText = SDL_CreateTextureFromSurface(gRenderer, renderText);
+    if (!textureText){
+        cout << "Failed to load texture surface. Big Yikes2\n";
     }
     
-    SDL_Rect TextBlock;
-    TextBlock.x = xPos;
-    TextBlock.y = yPos;
+    CreateRect.x = xPos;
+    CreateRect.y = yPos;
     
-    SDL_QueryTexture(textureText, NULL, NULL, &TextBlock.w, &TextBlock.h);
+    SDL_QueryTexture(textureText, NULL, NULL, &CreateRect.w, &CreateRect.h);
     SDL_FreeSurface(renderText);
     
     renderText = nullptr;
     
-    SDL_RenderCopy(gRenderer, textureText, NULL, &TextBlock);
+    SDL_RenderCopy(gRenderer, textureText, NULL, &CreateRect);
 }
 
-void printText(const int &message, int xPos, int yPos){
+bool startGame() {
     
-    SDL_Surface* renderText = TTF_RenderText_Blended(gFont, to_string(message).c_str(), textColor);
-    if (!renderText){
-        cout << "Failed to load CreateText surface.\n";
+    isPlaying = true;
+    
+    SDL_SetRenderDrawColor(gRenderer, 200, 0, 255, 255);
+    SDL_RenderFillRect(gRenderer, &block);
+    
+    printText("Score: " + to_string(score), font50, TextBlock, 100, 50);
+    
+    printText("Lives: " + to_string(lives), font50, TextBlock, 100, 120);
+    
+    printText("Countdown: " + to_string(timer), font50, TextBlock, 2500, 50);
+    
+    
+    return success;
+}
+
+bool startMenu() {
+    
+    printText("CONQUEROR ", font300, TextBlock, WIDTH/2 , HEIGHT/2);
+    printText("game by deric kwok", font100, TextBlock, (WIDTH/2) + 360, (HEIGHT/2) + 300);
+    
+    //printText("START", font100, textButton, 300 , 1300);
+    textSurface = TTF_RenderText_Blended(font100, "START", textColor);
+    if (!textSurface){
+        cout << "Failed to load" << " " << font100 << " " << "font! SDL_ttf Error: %s\n" << TTF_GetError();
     }
     
-    SDL_Texture* textureText = SDL_CreateTextureFromSurface(gRenderer, renderText);
+    text = SDL_CreateTextureFromSurface(gRenderer, textSurface);
     if (!text){
         cout << "Failed to load texture surface.\n";
     }
     
-    SDL_Rect TextBlock;
-    TextBlock.x = xPos;
-    TextBlock.y = yPos;
+    startRect.x = 300;
+    startRect.y = 1300;
     
-    SDL_QueryTexture(textureText, NULL, NULL, &TextBlock.w, &TextBlock.h);
-    SDL_FreeSurface(renderText);
+    SDL_QueryTexture(text, NULL, NULL, &startRect.w, &startRect.h);
     
-    renderText = nullptr;
+    SDL_FreeSurface(textSurface);
+    textSurface = nullptr;
     
-    SDL_RenderCopy(gRenderer, textureText, NULL, &TextBlock);
+    SDL_RenderCopy(gRenderer, text, NULL, &startRect);
+    
+    return success;
 }
 
 bool init(){
-    
-    bool success = true;
     
     SDL_Init(SDL_INIT_VIDEO);
     if (SDL_Init(SDL_INIT_EVERYTHING) < 0 ) {
@@ -130,40 +169,31 @@ bool init(){
         success = false;
     }
     
-    gFont = TTF_OpenFont("OpenSans-Regular.ttf", 100);
-    if (gFont == NULL){
-        printf( "Failed to load OpenSans font! SDL_ttf Error: %s\n", TTF_GetError() );
+    font300 = TTF_OpenFont("tomhand.ttf", 300);
+    if (font300 == NULL){
+        cout << "Failed to load" << " " << "tomhand.ttf" << " " << "font! SDL_ttf Error: %s\n" << TTF_GetError();
         success = false;
     }
     
-    SDL_Color textColor = { 255, 255, 255, 255 };
-    
-    textSurface = TTF_RenderText_Blended(gFont, "TIMER:", textColor);
-    if (!textSurface){
-        cout << "Failed to load texture surface.\n";
+    font100 = TTF_OpenFont("tomhand.ttf", 100);
+    if (font100 == NULL){
+        cout << "Failed to load" << " " << "tomhand.ttf" << " " << "font! SDL_ttf Error: %s\n" << TTF_GetError();
+        success = false;
     }
     
-    text = SDL_CreateTextureFromSurface(gRenderer, textSurface);
-    if (!text){
-        cout << "Failed to load texture surface.\n";
+    font50 = TTF_OpenFont("tomhand.ttf", 50);
+    if (font50 == NULL){
+        cout << "Failed to load" << " " << "tomhand.ttf" << " " << "font! SDL_ttf Error: %s\n" << TTF_GetError();
+        success = false;
     }
-    
-    textRect.x = textRect.y = 100;
-    
-    SDL_QueryTexture(text, NULL, NULL, &textRect.w, &textRect.h);
-    
-    SDL_FreeSurface(textSurface);
-    textSurface = nullptr;
-    
+     
     
     return success;
 }
 
 int main(){
-    bool success = true;
     SDL_Event windowEvent;
     
-    // Running the Window; Needs to loop in order for the window to be opened.
     if(!init()){
         printf( "Failed to initialize!\n" );
     }
@@ -171,17 +201,27 @@ int main(){
         printf( "Failed to load media!\n" );
     }
     
-    SDL_Rect block;
-    block.w = 100;
-    block.h = 100;
-    block.x = (WIDTH / 2) - (block.w / 2);
-    block.y = (HEIGHT / 2) - (block.h / 2);
-    int blockSpeed = 10;
+    int xMouse = 0, yMouse = 0;
     
     while(success){
+        auto time = SDL_GetTicks();
+        if ((SDL_GetTicks() - time) < 10) {
+            SDL_Delay(10);
+        }
         if(SDL_PollEvent(&windowEvent)){
             if (windowEvent.type == SDL_QUIT){
                 success = false;
+            }
+            if (windowEvent.type == SDL_MOUSEBUTTONDOWN){
+                if (windowEvent.button.button == SDL_BUTTON_LEFT){
+                    xMouse = windowEvent.button.x;
+                    yMouse = windowEvent.button.y;
+                    cout << xMouse << " " << yMouse << endl;
+                    if( ( xMouse > startRect.x /2 ) && ( xMouse < startRect.x ) && ( yMouse > startRect.y) && ( yMouse < startRect.y) ){
+                        //isPlaying = true;
+                        cout << "Player is pressed Start!\n";
+                    }
+                }
             }
             switch (windowEvent.type){
                 case SDL_KEYDOWN:
@@ -216,29 +256,33 @@ int main(){
         SDL_SetRenderDrawColor(gRenderer, 0, 0, 0, 255);
         SDL_RenderClear(gRenderer);
         
-        SDL_SetRenderDrawColor(gRenderer, 200, 0, 255, 255);
-        SDL_RenderFillRect(gRenderer, &block);
+        SDL_SetRenderDrawColor(gRenderer, 100, 0, 255, 255);
+        SDL_RenderFillRect(gRenderer, &textButton);
         
-        SDL_RenderCopy(gRenderer, text, NULL, &textRect);
+        if (isPlaying){
+            startGame();
+            inMenu = false;
+        }
         
+        if (inMenu){
+            startMenu();
+        }
         
-        printText("Score", 500, 100);
-        
-        printText("Lives", 1000, 100);
-        
-        printText(500, 300, 500);
+        //startGame();
         
         SDL_RenderPresent(gRenderer);
-    }
     
+    }
+    close();
     return success;
 }
 
 bool loadMedia(){
     
-    bool success = true;
-    
-    
+    block.w = 200;
+    block.h = 200;
+    block.x = (WIDTH / 2) - (block.w / 2);
+    block.y = (HEIGHT / 2) - (block.h / 2);
     
     SDL_Rect imagePosition;
     favicon = IMG_Load("icon.png");
@@ -256,13 +300,25 @@ bool loadMedia(){
 void close(){
     
     SDL_DestroyTexture( gTexture);
+    
     SDL_DestroyTexture(text);
     gTexture = NULL;
     
+    SDL_DestroyTexture(textureText);
+    textureText = NULL;
+    
+    SDL_DestroyTexture(text);
+    text = NULL;
     
     
-    TTF_CloseFont( gFont );
-    gFont = NULL;
+    TTF_CloseFont( font100 );
+    font100 = NULL;
+    
+    TTF_CloseFont( font300 );
+    font300 = NULL;
+    
+    TTF_CloseFont( font50 );
+    font50 = NULL;
     
     SDL_RenderClear(gRenderer);
     SDL_DestroyWindow(gWindow);
