@@ -9,6 +9,8 @@
 #include <sstream>
 #include <chrono>
 
+#include "LTimer.h"
+
 using namespace std;
 
 const int WIDTH = 1500, HEIGHT = 1000;
@@ -52,13 +54,19 @@ int countdown = 20; // In Seconds
 Uint32 startTime = (countdown*1000) + 3500;
 std::stringstream timeText;
 
+//framerates
+
+
+
+int countedFrames = 0;
 
 //Game Values
 int score = 0;
 int rounds = 1;
 int lives = 20;
 int blockSpeed = 10;
-int timer = 50;
+int gtimer = 50;
+int timeout = 0;
 
 bool success = true;
 
@@ -68,6 +76,112 @@ bool inMenu = true;
 
 SDL_Surface* renderText = nullptr;
 SDL_Texture* textureText = nullptr;
+
+
+LTimer::LTimer()
+{
+    //Initialize the variables
+    mStartTicks = 0;
+    mPausedTicks = 0;
+    
+    mPaused = false;
+    mStarted = false;
+}
+
+void LTimer::start()
+{
+    //Start the timer
+    mStarted = true;
+    
+    //Unpause the timer
+    mPaused = false;
+    
+    //Get the current clock time
+    mStartTicks = SDL_GetTicks();
+    mPausedTicks = 0;
+}
+
+void LTimer::stop()
+{
+    //Stop the timer
+    mStarted = false;
+    
+    //Unpause the timer
+    mPaused = false;
+    
+    //Clear tick variables
+    mStartTicks = 0;
+    mPausedTicks = 0;
+}
+
+void LTimer::pause()
+{
+    //If the timer is running and isn't already paused
+    if( mStarted && !mPaused )
+    {
+        //Pause the timer
+        mPaused = true;
+        
+        //Calculate the paused ticks
+        mPausedTicks = SDL_GetTicks() - mStartTicks;
+        mStartTicks = 0;
+    }
+}
+
+void LTimer::unpause()
+{
+    //If the timer is running and paused
+    if( mStarted && mPaused )
+    {
+        //Unpause the timer
+        mPaused = false;
+        
+        //Reset the starting ticks
+        mStartTicks = SDL_GetTicks() - mPausedTicks;
+        
+        //Reset the paused ticks
+        mPausedTicks = 0;
+    }
+}
+
+Uint32 LTimer::getTicks()
+{
+    //The actual timer time
+    Uint32 time = 0;
+    
+    //If the timer is running
+    if( mStarted )
+    {
+        //If the timer is paused
+        if( mPaused )
+        {
+            //Return the number of ticks when the timer was paused
+            time = mPausedTicks;
+        }
+        else
+        {
+            //Return the current time minus the start time
+            time = SDL_GetTicks() - mStartTicks;
+        }
+    }
+    
+    return time;
+}
+
+bool LTimer::isStarted()
+{
+    //Timer is running and paused or unpaused
+    return mStarted;
+}
+
+bool LTimer::isPaused()
+{
+    //Timer is running and paused
+    return mPaused && mStarted;
+}
+
+
+LTimer timer;
 
 /*
 
@@ -118,11 +232,10 @@ void printText(const std::string &Message, TTF_Font* fontType, SDL_Rect CreateRe
 
 bool startGame() {
     
-    timeText.str("");
+    timeText.str( "" );
+    timeText << (timer.getTicks() / 1000 );
     
-    if (pause == false){
-        timeText <<  (startTime - SDL_GetTicks()) / 1000;
-    }
+    //timeText <<  (startTime - SDL_GetTicks()) / 1000;
     
     isPlaying = true;
     
@@ -239,8 +352,8 @@ int main(){
     
     while(success){
         
-        if (SDL_GetTicks() <= 0){
-            cout << "nou\n";
+        if (!SDL_TICKS_PASSED(SDL_GetTicks(), timeout)){
+            cout << "dank memes\n";
         }
         
         if(SDL_PollEvent(&windowEvent)){
@@ -251,37 +364,64 @@ int main(){
                 if (windowEvent.button.button == SDL_BUTTON_LEFT){
                     xMouse = windowEvent.button.x;
                     yMouse = windowEvent.button.y;
-                    cout << xMouse << " " << yMouse << endl;
+                    cout << "(" << xMouse << ", " << yMouse << ") "<< endl;
                     if( ( xMouse > startRect.x /2 ) && ( xMouse < startRect.x ) && ( yMouse <= 700 ) && (yMouse >= 642)){
                         isPlaying = true;
                         cout << "Player is pressed Start!\n";
                     }
                 }
+            } else if( windowEvent.type == SDL_KEYDOWN ) {
+                //Start/stop
+                if( windowEvent.key.keysym.sym == SDLK_s )
+                {
+                    if( timer.isStarted() )
+                    {
+                        timer.stop();
+                    }
+                    else
+                    {
+                        timer.start();
+                    }
+                }
+                //Pause/unpause
+                else if( windowEvent.key.keysym.sym == SDLK_p )
+                {
+                    if( timer.isPaused() )
+                    {
+                        timer.unpause();
+                    }
+                    else
+                    {
+                        timer.pause();
+                    }
+                }
             }
+            /*
             if (windowEvent.type == SDL_KEYDOWN){
                 pause = false;
             }
+             */
             switch (windowEvent.type){
                 case SDL_KEYDOWN:
                     switch (windowEvent.key.keysym.sym){
-                        case SDLK_w:{
+                        case SDLK_w: case SDLK_UP:{
                             block.y -= blockSpeed;
                             break;
                         }
-                        case SDLK_a:{
+                        case SDLK_a: case SDLK_LEFT:{
                             block.x -= blockSpeed;
                             break;
                         }
-                        case SDLK_s:{
+                        case SDLK_s: case SDLK_DOWN:{
                             block.y += blockSpeed;
                             break;
                         }
-                        case SDLK_d:{
+                        case SDLK_d: case SDLK_RIGHT:{
                             block.x += blockSpeed;
                             break;
                         }
                         case SDLK_ESCAPE:{
-                            //startTime = SDL_GetTicks();
+                            startTime = SDL_GetTicks();
                             success = false;
                             break;
                         }
