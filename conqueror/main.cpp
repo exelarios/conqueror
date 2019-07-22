@@ -15,7 +15,7 @@ bool init();
 bool loadMedia();
 void close();
 
-SDL_Texture* loadTexture( std::string path );
+//SDL_Texture* loadTexture( std::string path );
 SDL_Window* gWindow = nullptr;
 SDL_Renderer* gRenderer = nullptr;
 SDL_Texture* gTexture = nullptr;
@@ -29,7 +29,9 @@ TTF_Font* font50 = nullptr;
 
 SDL_Surface* textSurface = nullptr;
 SDL_Texture* text = nullptr;
+
 SDL_Rect startRect;
+
 SDL_Color textColor = { 255, 255, 255, 255};
 
 SDL_Rect TextBlock;
@@ -51,6 +53,8 @@ bool inMenu = true;
 SDL_Surface* renderText = nullptr;
 SDL_Texture* textureText = nullptr;
 
+/*
+
 SDL_Texture *LoadTexture(std::string filePath, SDL_Renderer *renderTarget) {
     SDL_Texture *texture = nullptr;
     SDL_Surface *surface = IMG_Load(filePath.c_str());
@@ -67,6 +71,8 @@ SDL_Texture *LoadTexture(std::string filePath, SDL_Renderer *renderTarget) {
     
     return texture;
 }
+ 
+*/
 
 void printText(const std::string &Message, TTF_Font* fontType, SDL_Rect CreateRect, int xPos, int yPos){
     
@@ -90,6 +96,8 @@ void printText(const std::string &Message, TTF_Font* fontType, SDL_Rect CreateRe
     renderText = nullptr;
     
     SDL_RenderCopy(gRenderer, textureText, NULL, &CreateRect);
+    
+    SDL_DestroyTexture(textureText);
 }
 
 bool startGame() {
@@ -124,9 +132,6 @@ bool startMenu() {
     if (!text){
         cout << "Failed to load texture surface.\n";
     }
-    
-    startRect.x = 300;
-    startRect.y = 1300;
     
     SDL_QueryTexture(text, NULL, NULL, &startRect.w, &startRect.h);
     
@@ -192,6 +197,9 @@ bool init(){
 }
 
 int main(){
+    startRect.x = 300;
+    startRect.y = 1300;
+    
     SDL_Event windowEvent;
     
     if(!init()){
@@ -204,10 +212,6 @@ int main(){
     int xMouse = 0, yMouse = 0;
     
     while(success){
-        auto time = SDL_GetTicks();
-        if ((SDL_GetTicks() - time) < 10) {
-            SDL_Delay(10);
-        }
         if(SDL_PollEvent(&windowEvent)){
             if (windowEvent.type == SDL_QUIT){
                 success = false;
@@ -217,8 +221,8 @@ int main(){
                     xMouse = windowEvent.button.x;
                     yMouse = windowEvent.button.y;
                     cout << xMouse << " " << yMouse << endl;
-                    if( ( xMouse > startRect.x /2 ) && ( xMouse < startRect.x ) && ( yMouse > startRect.y) && ( yMouse < startRect.y) ){
-                        //isPlaying = true;
+                    if( ( xMouse > startRect.x /2 ) && ( xMouse < startRect.x ) && ( yMouse <= 700 ) && (yMouse >= 642)){
+                        isPlaying = true;
                         cout << "Player is pressed Start!\n";
                     }
                 }
@@ -257,10 +261,10 @@ int main(){
         SDL_RenderClear(gRenderer);
         
         SDL_SetRenderDrawColor(gRenderer, 100, 0, 255, 255);
-        SDL_RenderFillRect(gRenderer, &textButton);
         
         if (isPlaying){
             startGame();
+            delete textSurface;
             inMenu = false;
         }
         
@@ -271,6 +275,11 @@ int main(){
         //startGame();
         
         SDL_RenderPresent(gRenderer);
+        
+        SDL_DestroyTexture(textureText);
+        SDL_DestroyTexture(gTexture);
+        SDL_DestroyTexture(text);
+        
     
     }
     close();
