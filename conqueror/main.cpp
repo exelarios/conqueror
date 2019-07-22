@@ -50,8 +50,8 @@ auto gStartTime = chrono::steady_clock::now();
 bool started = false;
 bool pause = true;
 
-int countdown = 20; // In Seconds
-Uint32 startTime = (countdown*1000) + 3500;
+int countdown = 10; // In Seconds
+int startTime = (countdown*1000);
 std::stringstream timeText;
 
 //framerates
@@ -233,9 +233,9 @@ void printText(const std::string &Message, TTF_Font* fontType, SDL_Rect CreateRe
 bool startGame() {
     
     timeText.str( "" );
-    timeText << (timer.getTicks() / 1000 );
+    //timeText << (timer.getTicks() / 1000 );
     
-    //timeText <<  (startTime - SDL_GetTicks()) / 1000;
+    timeText <<  (startTime - timer.getTicks()) / 1000;
     
     isPlaying = true;
     
@@ -352,8 +352,8 @@ int main(){
     
     while(success){
         
-        if (!SDL_TICKS_PASSED(SDL_GetTicks(), timeout)){
-            cout << "dank memes\n";
+        if (SDL_GetTicks() >= 10000 + 3000){
+            timer.pause();
         }
         
         if(SDL_PollEvent(&windowEvent)){
@@ -370,31 +370,13 @@ int main(){
                         cout << "Player is pressed Start!\n";
                     }
                 }
-            } else if( windowEvent.type == SDL_KEYDOWN ) {
-                //Start/stop
-                if( windowEvent.key.keysym.sym == SDLK_s )
-                {
-                    if( timer.isStarted() )
-                    {
-                        timer.stop();
-                    }
-                    else
-                    {
-                        timer.start();
-                    }
+            }
+            if ((block.x != (WIDTH / 2) - (block.w / 2)) || (block.y != (HEIGHT / 2) - (block.h / 2)) ){
+                if (started == false){
+                    timer.start();
+                    started = true;
                 }
-                //Pause/unpause
-                else if( windowEvent.key.keysym.sym == SDLK_p )
-                {
-                    if( timer.isPaused() )
-                    {
-                        timer.unpause();
-                    }
-                    else
-                    {
-                        timer.pause();
-                    }
-                }
+                
             }
             /*
             if (windowEvent.type == SDL_KEYDOWN){
