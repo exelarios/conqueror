@@ -352,7 +352,7 @@ int main(){
     
     while(success){
         
-        if (SDL_GetTicks() >= 10000 + 3000){
+        if (SDL_GetTicks() >= 10000 + 2500){
             timer.pause();
         }
         
