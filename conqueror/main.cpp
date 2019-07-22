@@ -6,6 +6,8 @@
 #include <SDL2_ttf/SDL_ttf.h>
 #include <fstream>
 #include <stdlib.h>
+#include <sstream>
+#include <chrono>
 
 using namespace std;
 
@@ -16,6 +18,8 @@ bool loadMedia();
 void close();
 
 //SDL_Texture* loadTexture( std::string path );
+
+
 SDL_Window* gWindow = nullptr;
 SDL_Renderer* gRenderer = nullptr;
 SDL_Texture* gTexture = nullptr;
@@ -39,14 +43,26 @@ SDL_Rect textButton;
 
 SDL_Rect block;
 
+//Initalize Timer
+auto gStartTime = chrono::steady_clock::now();
+bool started = false;
+bool pause = true;
+
+int countdown = 20; // In Seconds
+Uint32 startTime = (countdown*1000) + 3500;
+std::stringstream timeText;
+
+
+//Game Values
 int score = 0;
 int rounds = 1;
 int lives = 20;
 int blockSpeed = 10;
-int timer = 100;
+int timer = 50;
 
 bool success = true;
 
+//Screens
 bool isPlaying = false;
 bool inMenu = true;
 
@@ -102,6 +118,12 @@ void printText(const std::string &Message, TTF_Font* fontType, SDL_Rect CreateRe
 
 bool startGame() {
     
+    timeText.str("");
+    
+    if (pause == false){
+        timeText <<  (startTime - SDL_GetTicks()) / 1000;
+    }
+    
     isPlaying = true;
     
     SDL_SetRenderDrawColor(gRenderer, 200, 0, 255, 255);
@@ -111,7 +133,7 @@ bool startGame() {
     
     printText("Lives: " + to_string(lives), font50, TextBlock, 100, 120);
     
-    printText("Countdown: " + to_string(timer), font50, TextBlock, 2500, 50);
+    printText("Countdown: " + timeText.str(), font50, TextBlock, 2500, 50);
     
     
     return success;
@@ -197,6 +219,8 @@ bool init(){
 }
 
 int main(){
+    
+    
     startRect.x = 300;
     startRect.y = 1300;
     
@@ -211,7 +235,14 @@ int main(){
     
     int xMouse = 0, yMouse = 0;
     
+    
+    
     while(success){
+        
+        if (SDL_GetTicks() <= 0){
+            cout << "nou\n";
+        }
+        
         if(SDL_PollEvent(&windowEvent)){
             if (windowEvent.type == SDL_QUIT){
                 success = false;
@@ -226,6 +257,9 @@ int main(){
                         cout << "Player is pressed Start!\n";
                     }
                 }
+            }
+            if (windowEvent.type == SDL_KEYDOWN){
+                pause = false;
             }
             switch (windowEvent.type){
                 case SDL_KEYDOWN:
@@ -247,6 +281,7 @@ int main(){
                             break;
                         }
                         case SDLK_ESCAPE:{
+                            //startTime = SDL_GetTicks();
                             success = false;
                             break;
                         }
@@ -276,12 +311,16 @@ int main(){
         
         SDL_RenderPresent(gRenderer);
         
+        
+        // Prevent Memeory Overload
         SDL_DestroyTexture(textureText);
         SDL_DestroyTexture(gTexture);
         SDL_DestroyTexture(text);
-        
-    
     }
+    
+    auto endTime = chrono::steady_clock::now();
+    double difference = chrono::duration_cast < chrono::seconds > (endTime - gStartTime).count();
+    cout << "You took "<< difference << " seconds\n";
     close();
     return success;
 }
