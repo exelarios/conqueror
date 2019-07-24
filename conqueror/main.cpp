@@ -8,6 +8,8 @@
 #include <stdlib.h>
 #include <sstream>
 #include <chrono>
+#include <unistd.h>
+#include <time.h>
 
 #include "LTimer.h"
 
@@ -49,11 +51,15 @@ SDL_Rect laser;
 //Initalize Timer
 auto gStartTime = chrono::steady_clock::now();
 bool started = false;
-bool pause = true;
+bool gpause = true;
 
 int countdown = 10; // In Seconds
 int startTime = (countdown*1000);
 std::stringstream timeText;
+int cooldownTimer = 0;
+std::stringstream cooldownTime;
+
+int runTime = 0;
 
 //framerates
 
@@ -69,6 +75,7 @@ int blockSpeed = 10;
 int gtimer = 50;
 int timeout = 0;
 bool debounce = true;
+int cooldownHit = 0;
 
 bool success = true;
 
@@ -184,6 +191,7 @@ bool LTimer::isPaused()
 
 
 LTimer timer;
+LTimer cooldownTiming;
 
 /*
 
@@ -205,10 +213,6 @@ SDL_Texture *LoadTexture(std::string filePath, SDL_Renderer *renderTarget) {
 }
  
 */
-
-void createLaser(){
-    
-}
 
 bool checkCollision (SDL_Rect a, SDL_Rect b){
     int leftA, leftB;
@@ -247,6 +251,31 @@ bool checkCollision (SDL_Rect a, SDL_Rect b){
     return true;
 }
 
+void createLaser(){
+    
+    SDL_SetRenderDrawColor(gRenderer, 100, 0, 255, 255);
+    SDL_RenderFillRect(gRenderer, &laser);
+    
+    laser.w = 1300;
+    laser.h = 50;
+    laser.x = runTime - laser.w;
+    
+    // Set up clock to and position the x or y to the time.
+    // Set up a function to generate lasers at random y axis.
+    
+    if (checkCollision(block, laser)){
+        cout << "hit!" << endl;
+        if (debounce == true) {
+            if (cooldownHit >= 100){
+                lives--;
+                cooldownHit = 0;
+            }
+        }
+    }
+    cooldownHit++;
+    runTime++;
+}
+
 void printText(const std::string &Message, TTF_Font* fontType, SDL_Rect CreateRect, int xPos, int yPos){
     
     renderText = TTF_RenderText_Blended(fontType, Message.c_str(), textColor);
@@ -276,6 +305,10 @@ void printText(const std::string &Message, TTF_Font* fontType, SDL_Rect CreateRe
 bool startGame() {
     
     timeText.str("");
+    cooldownTime.str("");
+    
+    cooldownTime << (cooldownTimer + cooldownTiming.getTicks() / 1000);
+    
     //timeText << (timer.getTicks() / 1000 );
     
     timeText <<  (startTime - timer.getTicks()) / 1000;
@@ -285,16 +318,7 @@ bool startGame() {
     SDL_SetRenderDrawColor(gRenderer, 200, 0, 255, 255);
     SDL_RenderFillRect(gRenderer, &block);
     
-    SDL_SetRenderDrawColor(gRenderer, 100, 0, 255, 255);
-    SDL_RenderFillRect(gRenderer, &laser);
-    
-    if (checkCollision(block, laser)){
-        cout << "hit!" << endl;
-        if (debounce == true) {
-            debounce = false;
-            lives--;
-        }
-    }
+    createLaser();
     
     printText("Score: " + to_string(score), smallFont, TextBlock, 100, 50);
     
@@ -423,13 +447,14 @@ int main(){
                     cout << "(" << xMouse << ", " << yMouse << ") "<< endl;
                     if( ( xMouse > startRect.x ) && ( xMouse < startRect.x + startRect.w ) && ( yMouse > startRect.y ) && ( yMouse < startRect.y + startRect.h ) ){
                         isPlaying = true;
-                        cout << "Player is pressed Start!\n";
+                        cout << "Player pressed Start!\n";
                     }
                 }
             }
             if ((block.x != (WIDTH / 2) - (block.w / 2)) || (block.y != (HEIGHT / 2) - (block.h / 2)) ){
                 if (started == false){
                     timer.start();
+                    cooldownTiming.start();
                     started = true;
                 }
                 
@@ -460,6 +485,7 @@ int main(){
                         }
                         case SDLK_ESCAPE:{
                             startTime = SDL_GetTicks();
+                            cooldownTimer = SDL_GetTicks();
                             success = false;
                             break;
                         }
@@ -510,10 +536,7 @@ bool loadMedia(){
     block.x = (WIDTH / 2) - (block.w / 2);
     block.y = (HEIGHT / 2) - (block.h / 2);
     
-    laser.w = 1300;
-    laser.h = 50;
-    laser.x = 1000;
-    laser.y = 500;
+    laser.y = rand() % 1000;
     
     SDL_Rect imagePosition;
     favicon = IMG_Load("icon.png");
