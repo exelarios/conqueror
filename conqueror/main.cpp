@@ -260,8 +260,16 @@ void createLaser(){
     laser.h = 50;
     laser.x = runTime - laser.w;
     
+    /* TODO
+     
+     // Reset the runTime Timer.
+     
+     
+    */
+    
     // Set up clock to and position the x or y to the time.
     // Set up a function to generate lasers at random y axis.
+    
     
     if (checkCollision(block, laser)){
         cout << "hit!" << endl;
