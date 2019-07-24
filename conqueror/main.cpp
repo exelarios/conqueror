@@ -29,9 +29,9 @@ SDL_Surface* favicon = NULL;
 
 
 //Initalize Font
-TTF_Font* font300 = nullptr;
-TTF_Font* font100 = nullptr;
-TTF_Font* font50 = nullptr;
+TTF_Font* bigFont = nullptr;
+TTF_Font* midFont = nullptr;
+TTF_Font* smallFont = nullptr;
 
 SDL_Surface* textSurface = nullptr;
 SDL_Texture* text = nullptr;
@@ -44,6 +44,7 @@ SDL_Rect TextBlock;
 SDL_Rect textButton;
 
 SDL_Rect block;
+SDL_Rect laser;
 
 //Initalize Timer
 auto gStartTime = chrono::steady_clock::now();
@@ -67,6 +68,7 @@ int lives = 20;
 int blockSpeed = 10;
 int gtimer = 50;
 int timeout = 0;
+bool debounce = true;
 
 bool success = true;
 
@@ -204,6 +206,47 @@ SDL_Texture *LoadTexture(std::string filePath, SDL_Renderer *renderTarget) {
  
 */
 
+void createLaser(){
+    
+}
+
+bool checkCollision (SDL_Rect a, SDL_Rect b){
+    int leftA, leftB;
+    int rightA, rightB;
+    int topA, topB;
+    int bottomA, bottomB;
+    
+    //Calculate the sides of rect A
+    leftA = a.x;
+    rightA = a.x + a.w;
+    topA = a.y;
+    bottomA = a.y + a.h;
+    
+    //Calculate the sides of rect B
+    leftB = b.x;
+    rightB = b.x + b.w;
+    topB = b.y;
+    bottomB = b.y + b.h;
+    
+    if( bottomA <= topB ) {
+        return false;
+    }
+    
+    if( topA >= bottomB ) {
+        return false;
+    }
+    
+    if( rightA <= leftB ) {
+        return false;
+    }
+    
+    if( leftA >= rightB ){
+        return false;
+    }
+    
+    return true;
+}
+
 void printText(const std::string &Message, TTF_Font* fontType, SDL_Rect CreateRect, int xPos, int yPos){
     
     renderText = TTF_RenderText_Blended(fontType, Message.c_str(), textColor);
@@ -232,7 +275,7 @@ void printText(const std::string &Message, TTF_Font* fontType, SDL_Rect CreateRe
 
 bool startGame() {
     
-    timeText.str( "" );
+    timeText.str("");
     //timeText << (timer.getTicks() / 1000 );
     
     timeText <<  (startTime - timer.getTicks()) / 1000;
@@ -242,25 +285,36 @@ bool startGame() {
     SDL_SetRenderDrawColor(gRenderer, 200, 0, 255, 255);
     SDL_RenderFillRect(gRenderer, &block);
     
-    printText("Score: " + to_string(score), font50, TextBlock, 100, 50);
+    SDL_SetRenderDrawColor(gRenderer, 100, 0, 255, 255);
+    SDL_RenderFillRect(gRenderer, &laser);
     
-    printText("Lives: " + to_string(lives), font50, TextBlock, 100, 120);
+    if (checkCollision(block, laser)){
+        cout << "hit!" << endl;
+        if (debounce == true) {
+            debounce = false;
+            lives--;
+        }
+    }
     
-    printText("Countdown: " + timeText.str(), font50, TextBlock, 2500, 50);
+    printText("Score: " + to_string(score), smallFont, TextBlock, 100, 50);
+    
+    printText("Lives: " + to_string(lives), smallFont, TextBlock, 100, 100);
+    
+    printText("Countdown: " + timeText.str(), smallFont, TextBlock, 1100, 50);
     
     
     return success;
 }
 
 bool startMenu() {
-    
-    printText("CONQUEROR ", font300, TextBlock, WIDTH/2 , HEIGHT/2);
-    printText("game by deric kwok", font100, TextBlock, (WIDTH/2) + 360, (HEIGHT/2) + 300);
+
+    printText("CONQUEROR ", bigFont, TextBlock, (WIDTH/2) - 410 , (HEIGHT/2) - 200);
+    printText("game by deric kwok", midFont, TextBlock, (WIDTH/2) - 220, (HEIGHT/2) - 70);
     
     //printText("START", font100, textButton, 300 , 1300);
-    textSurface = TTF_RenderText_Blended(font100, "START", textColor);
+    textSurface = TTF_RenderText_Blended(smallFont, "START", textColor);
     if (!textSurface){
-        cout << "Failed to load" << " " << font100 << " " << "font! SDL_ttf Error: %s\n" << TTF_GetError();
+        cout << "Failed to load" << " " << smallFont << " " << "font! SDL_ttf Error: %s\n" << TTF_GetError();
     }
     
     text = SDL_CreateTextureFromSurface(gRenderer, textSurface);
@@ -309,20 +363,20 @@ bool init(){
         success = false;
     }
     
-    font300 = TTF_OpenFont("tomhand.ttf", 300);
-    if (font300 == NULL){
+    bigFont = TTF_OpenFont("tomhand.ttf", 150);
+    if (bigFont == NULL){
         cout << "Failed to load" << " " << "tomhand.ttf" << " " << "font! SDL_ttf Error: %s\n" << TTF_GetError();
         success = false;
     }
     
-    font100 = TTF_OpenFont("tomhand.ttf", 100);
-    if (font100 == NULL){
+    midFont = TTF_OpenFont("tomhand.ttf",50);
+    if (midFont == NULL){
         cout << "Failed to load" << " " << "tomhand.ttf" << " " << "font! SDL_ttf Error: %s\n" << TTF_GetError();
         success = false;
     }
     
-    font50 = TTF_OpenFont("tomhand.ttf", 50);
-    if (font50 == NULL){
+    smallFont = TTF_OpenFont("tomhand.ttf", 40);
+    if (smallFont == NULL){
         cout << "Failed to load" << " " << "tomhand.ttf" << " " << "font! SDL_ttf Error: %s\n" << TTF_GetError();
         success = false;
     }
@@ -334,8 +388,8 @@ bool init(){
 int main(){
     
     
-    startRect.x = 300;
-    startRect.y = 1300;
+    startRect.x = 200;
+    startRect.y = 700;
     
     SDL_Event windowEvent;
     
@@ -352,7 +406,9 @@ int main(){
     
     while(success){
         
-        if (SDL_GetTicks() >= 10000 + 2500){
+        SDL_RenderSetLogicalSize(gRenderer, WIDTH, HEIGHT);
+        
+        if (SDL_GetTicks() >= 13000){
             timer.pause();
         }
         
@@ -365,7 +421,7 @@ int main(){
                     xMouse = windowEvent.button.x;
                     yMouse = windowEvent.button.y;
                     cout << "(" << xMouse << ", " << yMouse << ") "<< endl;
-                    if( ( xMouse > startRect.x /2 ) && ( xMouse < startRect.x ) && ( yMouse <= 700 ) && (yMouse >= 642)){
+                    if( ( xMouse > startRect.x ) && ( xMouse < startRect.x + startRect.w ) && ( yMouse > startRect.y ) && ( yMouse < startRect.y + startRect.h ) ){
                         isPlaying = true;
                         cout << "Player is pressed Start!\n";
                     }
@@ -449,10 +505,15 @@ int main(){
 
 bool loadMedia(){
     
-    block.w = 200;
-    block.h = 200;
+    block.w = 100;
+    block.h = 100;
     block.x = (WIDTH / 2) - (block.w / 2);
     block.y = (HEIGHT / 2) - (block.h / 2);
+    
+    laser.w = 1300;
+    laser.h = 50;
+    laser.x = 1000;
+    laser.y = 500;
     
     SDL_Rect imagePosition;
     favicon = IMG_Load("icon.png");
@@ -481,14 +542,14 @@ void close(){
     text = NULL;
     
     
-    TTF_CloseFont( font100 );
-    font100 = NULL;
+    TTF_CloseFont( bigFont );
+    bigFont = NULL;
     
-    TTF_CloseFont( font300 );
-    font300 = NULL;
+    TTF_CloseFont( midFont );
+    midFont = NULL;
     
-    TTF_CloseFont( font50 );
-    font50 = NULL;
+    TTF_CloseFont( smallFont );
+    smallFont = NULL;
     
     SDL_RenderClear(gRenderer);
     SDL_DestroyWindow(gWindow);
