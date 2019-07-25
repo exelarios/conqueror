@@ -47,6 +47,7 @@ SDL_Rect textButton;
 
 SDL_Rect block;
 SDL_Rect laser;
+SDL_Rect laser2;
 
 //Initalize Timer
 auto gStartTime = chrono::steady_clock::now();
@@ -60,6 +61,8 @@ int cooldownTimer = 0;
 std::stringstream cooldownTime;
 
 int runTime = 0;
+bool getRandom = false;
+bool getRandom2 = false;
 
 //framerates
 
@@ -77,6 +80,8 @@ int timeout = 0;
 bool debounce = true;
 int cooldownHit = 0;
 
+bool isRan = false;
+
 bool success = true;
 
 //Screens
@@ -85,9 +90,6 @@ bool inMenu = true;
 
 SDL_Surface* renderText = nullptr;
 SDL_Texture* textureText = nullptr;
-
-
-
 
 LTimer timer;
 LTimer cooldownTiming;
@@ -150,20 +152,51 @@ bool checkCollision (SDL_Rect a, SDL_Rect b){
     return true;
 }
 
-bool isRan = false;
+void placeLaser(){
+    do {
+    } while ()
+}
+
+void updateLaserPosition() {
+    
+    if (laser.x >= WIDTH && laser2.y >= HEIGHT){
+        placeLaser();
+        isRan = true;
+    }
+}
 
 void createLaser(){
     
+    cout << "first laser" << endl;
+    
     SDL_SetRenderDrawColor(gRenderer, 100, 0, 255, 255);
     SDL_RenderFillRect(gRenderer, &laser);
+    SDL_RenderFillRect(gRenderer, &laser2);
     
-    laser.w = 1300;
+    laser.w = WIDTH;
     laser.h = 50;
     laser.x = runTime - laser.w;
     
+    laser2.h = HEIGHT;
+    laser2.w = 50;
+    laser2.y = runTime - laser2.h;
+    
+    laser.y = rand() % 1000;
+    laser2.x = rand() % 1500;
+
     
     if (checkCollision(block, laser)){
         cout << "hit!" << endl;
+        if (debounce == true) {
+            if (cooldownHit >= 100){
+                lives--;
+                cooldownHit = 0;
+            }
+        }
+    }
+    
+    if (checkCollision(block, laser2)){
+        cout << "hit!2" << endl;
         if (debounce == true) {
             if (cooldownHit >= 100){
                 lives--;
@@ -180,6 +213,55 @@ void createLaser(){
     cooldownHit++;
     runTime++;
 }
+
+void createLaser2(){
+    
+    cout << "second laser" << endl;
+    SDL_SetRenderDrawColor(gRenderer, 100, 0, 255, 255);
+    SDL_RenderFillRect(gRenderer, &laser);
+    SDL_RenderFillRect(gRenderer, &laser2);
+    
+    laser.w = WIDTH;
+    laser.h = 50;
+    laser.x = runTime - laser.w;
+    
+    laser2.h = HEIGHT;
+    laser2.w = 50;
+    laser2.y = runTime - laser2.h;
+    
+    
+    if (checkCollision(block, laser)){
+        cout << "hit!" << endl;
+        if (debounce == true) {
+            if (cooldownHit >= 100){
+                lives--;
+                cooldownHit = 0;
+            }
+        }
+    }
+    
+    if (checkCollision(block, laser2)){
+        cout << "hit!2" << endl;
+        if (debounce == true) {
+            if (cooldownHit >= 100){
+                lives--;
+                cooldownHit = 0;
+            }
+        }
+    }
+    
+    if (laser.x >= WIDTH){
+        runTime = 0;
+        isRan = true;
+    }
+    
+    cooldownHit++;
+    runTime++;
+    
+    getRandom = true;
+
+}
+
 
 void printText(const std::string &Message, TTF_Font* fontType, SDL_Rect CreateRect, int xPos, int yPos){
     
@@ -219,16 +301,17 @@ bool startGame() {
     timeText <<  (startTime - timer.getTicks()) / 1000;
     
     isPlaying = true;
+
     
     SDL_SetRenderDrawColor(gRenderer, 200, 0, 255, 255);
     SDL_RenderFillRect(gRenderer, &block);
     
     if (isRan == false){
         createLaser();
+    } else {
+        createLaser2();
     }
-    
-    
-    
+
     
     printText("Score: " + to_string(score), smallFont, TextBlock, 100, 50);
     
@@ -335,8 +418,6 @@ int main(){
     
     int xMouse = 0, yMouse = 0;
     
-    
-    
     while(success){
         
         SDL_RenderSetLogicalSize(gRenderer, WIDTH, HEIGHT);
@@ -440,10 +521,11 @@ bool loadMedia(){
     block.x = (WIDTH / 2) - (block.w / 2);
     block.y = (HEIGHT / 2) - (block.h / 2);
     
-    laser.y = rand() % 1000;
-    
     SDL_Rect imagePosition;
     favicon = IMG_Load("icon.png");
+    
+    laser.y = rand() % 1000;
+    laser2.x = rand() % 1500;
     
     SDL_SetWindowIcon(gWindow, favicon);
     SDL_FreeSurface(favicon);
