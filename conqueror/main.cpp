@@ -152,26 +152,25 @@ bool checkCollision (SDL_Rect a, SDL_Rect b){
     return true;
 }
 
-void placeLaser(){
-    do {
-    } while ()
-}
-
-void updateLaserPosition() {
-    
-    if (laser.x >= WIDTH && laser2.y >= HEIGHT){
-        placeLaser();
+void updateLaserPosition(int &x, int &y) {
+    if (isRan == false){
+        x = rand() % 1400;
+        y = rand() % 900;
+        cout << x << " " << y << endl;
         isRan = true;
     }
 }
 
 void createLaser(){
+    //int x, y;
+    //updateLaserPosition(x, y);
     
-    cout << "first laser" << endl;
-    
-    SDL_SetRenderDrawColor(gRenderer, 100, 0, 255, 255);
-    SDL_RenderFillRect(gRenderer, &laser);
-    SDL_RenderFillRect(gRenderer, &laser2);
+    if (isRan == false){
+        laser2.x = rand() % 1400;
+        laser.y = rand() % 900;
+        cout << laser2.x  << " " << laser.y << endl;
+        isRan = true;
+    }
     
     laser.w = WIDTH;
     laser.h = 50;
@@ -181,9 +180,6 @@ void createLaser(){
     laser2.w = 50;
     laser2.y = runTime - laser2.h;
     
-    laser.y = rand() % 1000;
-    laser2.x = rand() % 1500;
-
     
     if (checkCollision(block, laser)){
         cout << "hit!" << endl;
@@ -207,7 +203,7 @@ void createLaser(){
     
     if (laser.x >= WIDTH){
         runTime = 0;
-        isRan = true;
+        isRan = false;
     }
     
     cooldownHit++;
@@ -251,6 +247,7 @@ void createLaser2(){
     }
     
     if (laser.x >= WIDTH){
+        
         runTime = 0;
         isRan = true;
     }
@@ -306,11 +303,8 @@ bool startGame() {
     SDL_SetRenderDrawColor(gRenderer, 200, 0, 255, 255);
     SDL_RenderFillRect(gRenderer, &block);
     
-    if (isRan == false){
-        createLaser();
-    } else {
-        createLaser2();
-    }
+    createLaser();
+    //createLaser2();
 
     
     printText("Score: " + to_string(score), smallFont, TextBlock, 100, 50);
@@ -350,6 +344,8 @@ bool startMenu() {
 }
 
 bool init(){
+    
+    srand(static_cast<unsigned int>(time(0)));
     
     SDL_Init(SDL_INIT_VIDEO);
     if (SDL_Init(SDL_INIT_EVERYTHING) < 0 ) {
@@ -485,6 +481,10 @@ int main(){
         SDL_RenderClear(gRenderer);
         
         SDL_SetRenderDrawColor(gRenderer, 100, 0, 255, 255);
+        SDL_RenderFillRect(gRenderer, &laser);
+        SDL_RenderFillRect(gRenderer, &laser2);
+        
+        SDL_SetRenderDrawColor(gRenderer, 100, 0, 255, 255);
         
         if (isPlaying){
             startGame();
@@ -524,8 +524,8 @@ bool loadMedia(){
     SDL_Rect imagePosition;
     favicon = IMG_Load("icon.png");
     
-    laser.y = rand() % 1000;
-    laser2.x = rand() % 1500;
+    //laser.y = rand() % 1000;
+    //laser2.x = rand() % 1500;
     
     SDL_SetWindowIcon(gWindow, favicon);
     SDL_FreeSurface(favicon);
