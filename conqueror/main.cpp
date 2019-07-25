@@ -54,15 +54,16 @@ auto gStartTime = chrono::steady_clock::now();
 bool started = false;
 bool gpause = true;
 
-int countdown = 10; // In Seconds
-int startTime = (countdown*1000);
-std::stringstream timeText;
-int cooldownTimer = 0;
-std::stringstream cooldownTime;
+//int countdown = 10; // In Seconds
+//int startTime = (countdown*1000);
+//std::stringstream timeText;
+//int cooldownTimer = 0;
+//std::stringstream cooldownTime;
 
 int runTime = 0;
-bool getRandom = false;
-bool getRandom2 = false;
+
+int myCountdown = 10 * 1000;
+bool startCountdown = false;
 
 //framerates
 
@@ -72,13 +73,13 @@ int countedFrames = 0;
 
 //Game Values
 int score = 0;
-int rounds = 1;
 int lives = 20;
+int gRound = 1;
 int blockSpeed = 10;
-int gtimer = 50;
-int timeout = 0;
 bool debounce = true;
 int cooldownHit = 0;
+
+int roundWait = 0;
 
 bool isRan = false;
 
@@ -87,12 +88,14 @@ bool success = true;
 //Screens
 bool isPlaying = false;
 bool inMenu = true;
+bool gameOver = false;
+bool newRound = false;
+
+bool stopMovement = false;
 
 SDL_Surface* renderText = nullptr;
 SDL_Texture* textureText = nullptr;
-
-LTimer timer;
-LTimer cooldownTiming;
+//LTimer cooldownTiming;
 
 /*
 
@@ -152,34 +155,31 @@ bool checkCollision (SDL_Rect a, SDL_Rect b){
     return true;
 }
 
-void updateLaserPosition(int &x, int &y) {
-    if (isRan == false){
-        x = rand() % 1400;
-        y = rand() % 900;
-        cout << x << " " << y << endl;
-        isRan = true;
-    }
-}
-
 void createLaser(){
-    //int x, y;
-    //updateLaserPosition(x, y);
-    
-    if (isRan == false){
-        laser2.x = rand() % 1400;
-        laser.y = rand() % 900;
-        cout << laser2.x  << " " << laser.y << endl;
-        isRan = true;
-    }
     
     laser.w = WIDTH;
-    laser.h = 50;
-    laser.x = runTime - laser.w;
-    
     laser2.h = HEIGHT;
-    laser2.w = 50;
-    laser2.y = runTime - laser2.h;
+    laser.x = 1500;
+    laser2.y = 1000;
     
+    if (stopMovement == false){
+        if (started == true){
+            
+            startCountdown = true;
+            
+            laser.x = runTime - laser.w;
+            laser2.y = runTime - laser2.h;
+            
+            if (isRan == false){
+                laser2.x = rand() % 1400;
+                laser.y = rand() % 900;
+                laser.h = (rand() % 51) + 50;
+                laser2.w = (rand() % 51) + 50;
+                cout << laser2.x  << " " << laser.y << endl;
+                isRan = true;
+            }
+        }
+    }
     
     if (checkCollision(block, laser)){
         cout << "hit!" << endl;
@@ -210,56 +210,6 @@ void createLaser(){
     runTime++;
 }
 
-void createLaser2(){
-    
-    cout << "second laser" << endl;
-    SDL_SetRenderDrawColor(gRenderer, 100, 0, 255, 255);
-    SDL_RenderFillRect(gRenderer, &laser);
-    SDL_RenderFillRect(gRenderer, &laser2);
-    
-    laser.w = WIDTH;
-    laser.h = 50;
-    laser.x = runTime - laser.w;
-    
-    laser2.h = HEIGHT;
-    laser2.w = 50;
-    laser2.y = runTime - laser2.h;
-    
-    
-    if (checkCollision(block, laser)){
-        cout << "hit!" << endl;
-        if (debounce == true) {
-            if (cooldownHit >= 100){
-                lives--;
-                cooldownHit = 0;
-            }
-        }
-    }
-    
-    if (checkCollision(block, laser2)){
-        cout << "hit!2" << endl;
-        if (debounce == true) {
-            if (cooldownHit >= 100){
-                lives--;
-                cooldownHit = 0;
-            }
-        }
-    }
-    
-    if (laser.x >= WIDTH){
-        
-        runTime = 0;
-        isRan = true;
-    }
-    
-    cooldownHit++;
-    runTime++;
-    
-    getRandom = true;
-
-}
-
-
 void printText(const std::string &Message, TTF_Font* fontType, SDL_Rect CreateRect, int xPos, int yPos){
     
     renderText = TTF_RenderText_Blended(fontType, Message.c_str(), textColor);
@@ -288,14 +238,14 @@ void printText(const std::string &Message, TTF_Font* fontType, SDL_Rect CreateRe
 
 bool startGame() {
     
-    timeText.str("");
-    cooldownTime.str("");
+    //timeText.str("");
+    //cooldownTime.str("");
     
-    cooldownTime << (cooldownTimer + cooldownTiming.getTicks() / 1000);
+    //cooldownTime << (cooldownTimer + cooldownTiming.getTicks() / 1000);
     
     //timeText << (timer.getTicks() / 1000 );
     
-    timeText <<  (startTime - timer.getTicks()) / 1000;
+    //timeText <<  (startTime - timer.getTicks()) / 1000;
     
     isPlaying = true;
 
@@ -303,17 +253,28 @@ bool startGame() {
     SDL_SetRenderDrawColor(gRenderer, 200, 0, 255, 255);
     SDL_RenderFillRect(gRenderer, &block);
     
-    createLaser();
-    //createLaser2();
+    SDL_SetRenderDrawColor(gRenderer, 100, 0, 255, 255);
+    SDL_RenderFillRect(gRenderer, &laser);
+    SDL_RenderFillRect(gRenderer, &laser2);
+    
+    // The higher the value of gRound the faster the lasers will go.
+    for (int i = 0; i < gRound + 1; i++){
+        createLaser();
+    }
 
     
     printText("Score: " + to_string(score), smallFont, TextBlock, 100, 50);
     
     printText("Lives: " + to_string(lives), smallFont, TextBlock, 100, 100);
     
-    printText("Countdown: " + timeText.str(), smallFont, TextBlock, 1100, 50);
+    printText("Countdown: " + to_string(myCountdown / 1000), smallFont, TextBlock, 1100, 50);
     
+    printText("Round: " + to_string(gRound), smallFont, TextBlock, 1100, 100);
     
+    if (startCountdown == true){
+        myCountdown--;
+    }
+
     return success;
 }
 
@@ -340,6 +301,20 @@ bool startMenu() {
     
     SDL_RenderCopy(gRenderer, text, NULL, &startRect);
     
+    return success;
+}
+
+bool gameOverScreen() {
+    
+    printText("GAME OVER!", bigFont, TextBlock, (WIDTH/2) - 410 , (HEIGHT/2) - 200);
+    
+    return success;
+}
+
+bool UpdateRound(){
+    
+    printText("Round: " + to_string(gRound), bigFont, TextBlock, (WIDTH/2) - 410 , (HEIGHT/2) - 200);
+    printText("Press SPACEBAR to continue.", midFont, TextBlock, (WIDTH/2) - 410 , (HEIGHT/2));
     return success;
 }
 
@@ -418,8 +393,19 @@ int main(){
         
         SDL_RenderSetLogicalSize(gRenderer, WIDTH, HEIGHT);
         
-        if (SDL_GetTicks() >= 13000){
+        /*
+        if (SDL_GetTicks() >= 10000){
+            newRound = true;
             timer.pause();
+        }
+        */
+        if (myCountdown == 0){
+            score += 10;
+            gRound++;
+            newRound = true;
+            myCountdown = (10000 * gRound);
+            stopMovement = true;
+            startCountdown = false;
         }
         
         if(SDL_PollEvent(&windowEvent)){
@@ -439,8 +425,6 @@ int main(){
             }
             if ((block.x != (WIDTH / 2) - (block.w / 2)) || (block.y != (HEIGHT / 2) - (block.h / 2)) ){
                 if (started == false){
-                    timer.start();
-                    cooldownTiming.start();
                     started = true;
                 }
                 
@@ -465,10 +449,22 @@ int main(){
                             break;
                         }
                         case SDLK_ESCAPE:{
-                            startTime = SDL_GetTicks();
-                            cooldownTimer = SDL_GetTicks();
+                            //startTime = SDL_GetTicks();
                             success = false;
                             break;
+                        }
+                        case SDLK_SPACE: {
+                            newRound = false;
+                            isPlaying = true;
+                            startCountdown = true;
+                            stopMovement = false;
+                            break;
+                        }
+                        case SDLK_c: {
+                            lives = 99999;
+                        }
+                        case SDLK_t: {
+                            myCountdown = 2;
                         }
                     }
                 default:
@@ -481,10 +477,6 @@ int main(){
         SDL_RenderClear(gRenderer);
         
         SDL_SetRenderDrawColor(gRenderer, 100, 0, 255, 255);
-        SDL_RenderFillRect(gRenderer, &laser);
-        SDL_RenderFillRect(gRenderer, &laser2);
-        
-        SDL_SetRenderDrawColor(gRenderer, 100, 0, 255, 255);
         
         if (isPlaying){
             startGame();
@@ -494,6 +486,16 @@ int main(){
         
         if (inMenu){
             startMenu();
+        }
+        
+        if(newRound){
+            UpdateRound();
+        }
+        
+        if(lives == 0){
+            gameOverScreen();
+            inMenu = false;
+            isPlaying = false;
         }
         
         //startGame();
