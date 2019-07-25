@@ -27,7 +27,12 @@ void close();
 SDL_Window* gWindow = nullptr;
 SDL_Renderer* gRenderer = nullptr;
 SDL_Texture* gTexture = nullptr;
-SDL_Surface* favicon = NULL;
+
+// Images Assets
+SDL_Surface* favicon = nullptr;
+
+SDL_Surface* speedIcon = nullptr;
+SDL_Rect speedRect;
 
 
 //Initalize Font
@@ -95,28 +100,6 @@ bool stopMovement = false;
 
 SDL_Surface* renderText = nullptr;
 SDL_Texture* textureText = nullptr;
-//LTimer cooldownTiming;
-
-/*
-
-SDL_Texture *LoadTexture(std::string filePath, SDL_Renderer *renderTarget) {
-    SDL_Texture *texture = nullptr;
-    SDL_Surface *surface = IMG_Load(filePath.c_str());
-    if(surface == NULL)
-        std::cout << "Error" << std::endl;
-    else
-    {
-        texture = SDL_CreateTextureFromSurface(renderTarget, surface);
-        if(texture == NULL)
-            std::cout << "Error" << std::endl;
-    }
-    
-    SDL_FreeSurface(surface);
-    
-    return texture;
-}
- 
-*/
 
 bool checkCollision (SDL_Rect a, SDL_Rect b){
     int leftA, leftB;
@@ -164,13 +147,13 @@ void createLaser(){
     
     if (stopMovement == false){
         if (started == true){
-            
             startCountdown = true;
             
             laser.x = runTime - laser.w;
             laser2.y = runTime - laser2.h;
             
             if (isRan == false){
+                score += 1 + gRound;
                 laser2.x = rand() % 1400;
                 laser.y = rand() % 900;
                 laser.h = (rand() % 51) + 50;
@@ -311,10 +294,14 @@ bool gameOverScreen() {
     return success;
 }
 
+
 bool UpdateRound(){
     
-    printText("Round: " + to_string(gRound), bigFont, TextBlock, (WIDTH/2) - 410 , (HEIGHT/2) - 200);
-    printText("Press SPACEBAR to continue.", midFont, TextBlock, (WIDTH/2) - 410 , (HEIGHT/2));
+    printText("Round: " + to_string(gRound), bigFont, TextBlock, (WIDTH/2) - 300 , (HEIGHT/2) - 200);
+    printText("Press SPACEBAR to continue.", midFont, TextBlock, (WIDTH/2) - 300 , (HEIGHT/2));
+    
+    SDL_RenderCopy(gRenderer, gTexture, NULL , &speedRect);
+    
     return success;
 }
 
@@ -400,7 +387,7 @@ int main(){
         }
         */
         if (myCountdown == 0){
-            score += 10;
+            lives += 10;
             gRound++;
             newRound = true;
             myCountdown = (10000 * gRound);
@@ -462,6 +449,7 @@ int main(){
                         }
                         case SDLK_c: {
                             lives = 99999;
+                            break;
                         }
                         case SDLK_t: {
                             myCountdown = 2;
@@ -523,17 +511,11 @@ bool loadMedia(){
     block.x = (WIDTH / 2) - (block.w / 2);
     block.y = (HEIGHT / 2) - (block.h / 2);
     
-    SDL_Rect imagePosition;
     favicon = IMG_Load("icon.png");
     
-    //laser.y = rand() % 1000;
-    //laser2.x = rand() % 1500;
     
     SDL_SetWindowIcon(gWindow, favicon);
     SDL_FreeSurface(favicon);
-    
-    imagePosition.x = 250;
-    imagePosition.y = 100;
     
     return success;
 }

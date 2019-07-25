@@ -28,6 +28,7 @@
 
 /* Begin PBXFileReference section */
 		0820799B22D5A4360055659C /* SDL2_image.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL2_image.framework; path = ../../../../Library/Frameworks/SDL2_image.framework; sourceTree = "<group>"; };
+		083BE2A622EA635600CB7B8A /* speed.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = speed.png; sourceTree = "<group>"; };
 		083F2D7022D5867700FEC2FF /* conqueror */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = conqueror; sourceTree = BUILT_PRODUCTS_DIR; };
 		083F2D7322D5867700FEC2FF /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		083F2D7B22D5887000FEC2FF /* SDL2.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL2.framework; path = ../../../../Library/Frameworks/SDL2.framework; sourceTree = "<group>"; };
@@ -66,6 +67,7 @@
 		08247FAA22DD2B2100B6861F /* images */ = {
 			isa = PBXGroup;
 			children = (
+				083BE2A622EA635600CB7B8A /* speed.png */,
 				084CC1B422E3A723008E22AC /* icon.png */,
 			);
 			path = images;
