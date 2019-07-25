@@ -11,7 +11,7 @@
 #include <unistd.h>
 #include <time.h>
 
-#include "LTimer.h"
+#include "LTimer.cpp"
 
 using namespace std;
 
@@ -87,107 +87,6 @@ SDL_Surface* renderText = nullptr;
 SDL_Texture* textureText = nullptr;
 
 
-LTimer::LTimer()
-{
-    //Initialize the variables
-    mStartTicks = 0;
-    mPausedTicks = 0;
-    
-    mPaused = false;
-    mStarted = false;
-}
-
-void LTimer::start()
-{
-    //Start the timer
-    mStarted = true;
-    
-    //Unpause the timer
-    mPaused = false;
-    
-    //Get the current clock time
-    mStartTicks = SDL_GetTicks();
-    mPausedTicks = 0;
-}
-
-void LTimer::stop()
-{
-    //Stop the timer
-    mStarted = false;
-    
-    //Unpause the timer
-    mPaused = false;
-    
-    //Clear tick variables
-    mStartTicks = 0;
-    mPausedTicks = 0;
-}
-
-void LTimer::pause()
-{
-    //If the timer is running and isn't already paused
-    if( mStarted && !mPaused )
-    {
-        //Pause the timer
-        mPaused = true;
-        
-        //Calculate the paused ticks
-        mPausedTicks = SDL_GetTicks() - mStartTicks;
-        mStartTicks = 0;
-    }
-}
-
-void LTimer::unpause()
-{
-    //If the timer is running and paused
-    if( mStarted && mPaused )
-    {
-        //Unpause the timer
-        mPaused = false;
-        
-        //Reset the starting ticks
-        mStartTicks = SDL_GetTicks() - mPausedTicks;
-        
-        //Reset the paused ticks
-        mPausedTicks = 0;
-    }
-}
-
-Uint32 LTimer::getTicks()
-{
-    //The actual timer time
-    Uint32 time = 0;
-    
-    //If the timer is running
-    if( mStarted )
-    {
-        //If the timer is paused
-        if( mPaused )
-        {
-            //Return the number of ticks when the timer was paused
-            time = mPausedTicks;
-        }
-        else
-        {
-            //Return the current time minus the start time
-            time = SDL_GetTicks() - mStartTicks;
-        }
-    }
-    
-    return time;
-}
-
-bool LTimer::isStarted()
-{
-    //Timer is running and paused or unpaused
-    return mStarted;
-}
-
-bool LTimer::isPaused()
-{
-    //Timer is running and paused
-    return mPaused && mStarted;
-}
 
 
 LTimer timer;
@@ -251,6 +150,8 @@ bool checkCollision (SDL_Rect a, SDL_Rect b){
     return true;
 }
 
+bool isRan = false;
+
 void createLaser(){
     
     SDL_SetRenderDrawColor(gRenderer, 100, 0, 255, 255);
@@ -259,16 +160,6 @@ void createLaser(){
     laser.w = 1300;
     laser.h = 50;
     laser.x = runTime - laser.w;
-    
-    /* TODO
-     
-     // Reset the runTime Timer.
-     
-     
-    */
-    
-    // Set up clock to and position the x or y to the time.
-    // Set up a function to generate lasers at random y axis.
     
     
     if (checkCollision(block, laser)){
@@ -280,6 +171,12 @@ void createLaser(){
             }
         }
     }
+    
+    if (laser.x >= WIDTH){
+        runTime = 0;
+        isRan = true;
+    }
+    
     cooldownHit++;
     runTime++;
 }
@@ -326,7 +223,12 @@ bool startGame() {
     SDL_SetRenderDrawColor(gRenderer, 200, 0, 255, 255);
     SDL_RenderFillRect(gRenderer, &block);
     
-    createLaser();
+    if (isRan == false){
+        createLaser();
+    }
+    
+    
+    
     
     printText("Score: " + to_string(score), smallFont, TextBlock, 100, 50);
     
@@ -419,7 +321,6 @@ bool init(){
 
 int main(){
     
-    
     startRect.x = 200;
     startRect.y = 700;
     
@@ -467,11 +368,6 @@ int main(){
                 }
                 
             }
-            /*
-            if (windowEvent.type == SDL_KEYDOWN){
-                pause = false;
-            }
-             */
             switch (windowEvent.type){
                 case SDL_KEYDOWN:
                     switch (windowEvent.key.keysym.sym){

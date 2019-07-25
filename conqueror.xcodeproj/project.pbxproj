@@ -32,13 +32,8 @@
 		083F2D7322D5867700FEC2FF /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		083F2D7B22D5887000FEC2FF /* SDL2.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL2.framework; path = ../../../../Library/Frameworks/SDL2.framework; sourceTree = "<group>"; };
 		083F2D7D22D588C100FEC2FF /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
-		084CC1B122E2F268008E22AC /* OpenSans-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "OpenSans-Regular.ttf"; path = "../../../Downloads/open-sans/OpenSans-Regular.ttf"; sourceTree = "<group>"; };
-		084CC1B322E30E96008E22AC /* sketchy.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = sketchy.ttf; path = ../../../Downloads/sketchy.ttf; sourceTree = "<group>"; };
 		084CC1B422E3A723008E22AC /* icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = icon.png; sourceTree = "<group>"; };
-		0868B6BA22DEB85B00E1F435 /* mainLogo.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = mainLogo.png; sourceTree = "<group>"; };
-		0870536622E26140008A28C9 /* swirl_effect.bmp */ = {isa = PBXFileReference; lastKnownFileType = image.bmp; path = swirl_effect.bmp; sourceTree = "<group>"; };
-		08DD33D122E4EDF700848F82 /* VeriNiecPica-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "VeriNiecPica-Regular.ttf"; sourceTree = "<group>"; };
-		08DD33D222E4EFCB00848F82 /* OpenSans-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "OpenSans-Regular.ttf"; sourceTree = "<group>"; };
+		087515F322E976440048F011 /* LTimer.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = LTimer.cpp; sourceTree = "<group>"; };
 		08DD33D422E4EFFE00848F82 /* tomhand.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = tomhand.ttf; sourceTree = "<group>"; };
 		08DD33D522E597DF00848F82 /* Ltimer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Ltimer.h; sourceTree = "<group>"; };
 		08FD952E22E17DAB00F774A3 /* SDL2_ttf.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL2_ttf.framework; path = ../../../../Library/Frameworks/SDL2_ttf.framework; sourceTree = "<group>"; };
@@ -72,10 +67,16 @@
 			isa = PBXGroup;
 			children = (
 				084CC1B422E3A723008E22AC /* icon.png */,
-				0870536622E26140008A28C9 /* swirl_effect.bmp */,
-				0868B6BA22DEB85B00E1F435 /* mainLogo.png */,
 			);
 			path = images;
+			sourceTree = "<group>";
+		};
+		082DBDE622E9779500E5412F /* include */ = {
+			isa = PBXGroup;
+			children = (
+				08DD33D522E597DF00848F82 /* Ltimer.h */,
+			);
+			path = include;
 			sourceTree = "<group>";
 		};
 		083F2D6722D5867700FEC2FF = {
@@ -98,11 +99,10 @@
 		083F2D7222D5867700FEC2FF /* conqueror */ = {
 			isa = PBXGroup;
 			children = (
-				084CC1B322E30E96008E22AC /* sketchy.ttf */,
-				084CC1B122E2F268008E22AC /* OpenSans-Regular.ttf */,
-				08CC2E3D22DEFCF400BC41AD /* headers */,
 				0868B6BF22DEF76A00E1F435 /* src */,
+				082DBDE622E9779500E5412F /* include */,
 				083F2D7322D5867700FEC2FF /* main.cpp */,
+				087515F322E976440048F011 /* LTimer.cpp */,
 			);
 			path = conqueror;
 			sourceTree = "<group>";
@@ -126,20 +126,10 @@
 			path = src;
 			sourceTree = "<group>";
 		};
-		08CC2E3D22DEFCF400BC41AD /* headers */ = {
-			isa = PBXGroup;
-			children = (
-				08DD33D522E597DF00848F82 /* Ltimer.h */,
-			);
-			path = headers;
-			sourceTree = "<group>";
-		};
 		08DD33D022E4EDCB00848F82 /* fonts */ = {
 			isa = PBXGroup;
 			children = (
 				08DD33D422E4EFFE00848F82 /* tomhand.ttf */,
-				08DD33D222E4EFCB00848F82 /* OpenSans-Regular.ttf */,
-				08DD33D122E4EDF700848F82 /* VeriNiecPica-Regular.ttf */,
 			);
 			path = fonts;
 			sourceTree = "<group>";
