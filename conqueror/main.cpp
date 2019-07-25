@@ -289,7 +289,8 @@ bool startMenu() {
 
 bool gameOverScreen() {
     
-    printText("GAME OVER!", bigFont, TextBlock, (WIDTH/2) - 410 , (HEIGHT/2) - 200);
+    printText("GAME OVER!", bigFont, TextBlock, (WIDTH/2) - 390, (HEIGHT/2) - 200);
+    printText("What's your name?", midFont, TextBlock, (WIDTH/2) - 190 , (HEIGHT/2));
     
     return success;
 }
@@ -451,6 +452,10 @@ int main(){
                             lives = 99999;
                             break;
                         }
+                        case SDLK_k: {
+                            lives = 1;
+                            break;
+                        }
                         case SDLK_t: {
                             myCountdown = 2;
                         }
@@ -497,9 +502,6 @@ int main(){
         SDL_DestroyTexture(text);
     }
     
-    auto endTime = chrono::steady_clock::now();
-    double difference = chrono::duration_cast < chrono::seconds > (endTime - gStartTime).count();
-    cout << "You took "<< difference << " seconds\n";
     close();
     return success;
 }
