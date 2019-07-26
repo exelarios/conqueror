@@ -1,3 +1,12 @@
+/*
+ 
+ The objective of the game is to dodge the two lasers intersecting from both axes.
+ If the player tocuhes the laser for each second the player loses a life.
+ Each round the lasers will go faster and the player has the updates to buy perks to upgrade their block.
+ The player's score is also their currency in the game to increase speed, strink their blocks and also buy back lives.
+ 
+*/
+
 #include <iostream>
 #include "SDL2/SDL.h"
 #include <SDL2_image/SDL_image.h>
@@ -10,8 +19,6 @@
 #include <chrono>
 #include <unistd.h>
 #include <time.h>
-
-#include "LTimer.cpp"
 
 using namespace std;
 
@@ -27,13 +34,14 @@ void close();
 SDL_Window* gWindow = nullptr;
 SDL_Renderer* gRenderer = nullptr;
 SDL_Texture* gTexture = nullptr;
-
 // Images Assets
 SDL_Surface* favicon = nullptr;
 
 SDL_Surface* speedIcon = nullptr;
 SDL_Rect speedRect;
-
+SDL_Rect livesRect;
+SDL_Rect shrinkRect;
+SDL_Texture* speedTexture = nullptr;
 
 //Initalize Font
 TTF_Font* bigFont = nullptr;
@@ -70,11 +78,8 @@ int runTime = 0;
 int myCountdown = 10 * 1000;
 bool startCountdown = false;
 
-//framerates
-
-
-
-int countedFrames = 0;
+//OutputFiles
+ofstream outputFile;
 
 //Game Values
 int score = 0;
@@ -100,6 +105,7 @@ bool stopMovement = false;
 
 SDL_Surface* renderText = nullptr;
 SDL_Texture* textureText = nullptr;
+
 
 bool checkCollision (SDL_Rect a, SDL_Rect b){
     int leftA, leftB;
@@ -219,16 +225,30 @@ void printText(const std::string &Message, TTF_Font* fontType, SDL_Rect CreateRe
     SDL_DestroyTexture(textureText);
 }
 
+void printImage(std::string path, SDL_Surface* speedIcon, SDL_Rect speedRect, int xPos, int yPos){
+    speedIcon = IMG_Load(path.c_str());
+    if (speedIcon == NULL){
+        cout << "SpeedIcon failed to intialize.\n";
+        success = false;
+    }
+    
+    speedRect.x = xPos;
+    speedRect.y = yPos;
+    speedRect.w = 100;
+    speedRect.h = 100;
+    
+    speedTexture = SDL_CreateTextureFromSurface(gRenderer, speedIcon);
+    if (!speedTexture){
+        cout << "Can't load Speed Image texture.\n";
+    }
+    SDL_FreeSurface(speedIcon);
+    
+    SDL_QueryTexture(speedTexture, NULL, NULL, &speedRect.w, &speedRect.h);
+    
+    SDL_RenderCopy(gRenderer, speedTexture, NULL, &speedRect);
+}
+
 bool startGame() {
-    
-    //timeText.str("");
-    //cooldownTime.str("");
-    
-    //cooldownTime << (cooldownTimer + cooldownTiming.getTicks() / 1000);
-    
-    //timeText << (timer.getTicks() / 1000 );
-    
-    //timeText <<  (startTime - timer.getTicks()) / 1000;
     
     isPlaying = true;
 
@@ -261,12 +281,13 @@ bool startGame() {
     return success;
 }
 
+
+
 bool startMenu() {
 
     printText("CONQUEROR ", bigFont, TextBlock, (WIDTH/2) - 410 , (HEIGHT/2) - 200);
     printText("game by deric kwok", midFont, TextBlock, (WIDTH/2) - 220, (HEIGHT/2) - 70);
     
-    //printText("START", font100, textButton, 300 , 1300);
     textSurface = TTF_RenderText_Blended(smallFont, "START", textColor);
     if (!textSurface){
         cout << "Failed to load" << " " << smallFont << " " << "font! SDL_ttf Error: %s\n" << TTF_GetError();
@@ -290,21 +311,29 @@ bool startMenu() {
 bool gameOverScreen() {
     
     printText("GAME OVER!", bigFont, TextBlock, (WIDTH/2) - 390, (HEIGHT/2) - 200);
-    printText("What's your name?", midFont, TextBlock, (WIDTH/2) - 190 , (HEIGHT/2));
+    printText("Press SPACEBAR to try again.", midFont, TextBlock, (WIDTH/2) - 300 , (HEIGHT/2));
+    //printText("What's your name?", midFont, TextBlock, (WIDTH/2) - 170 , (HEIGHT/2));
+    
+    gameOver = true;
     
     return success;
 }
-
 
 bool UpdateRound(){
     
     printText("Round: " + to_string(gRound), bigFont, TextBlock, (WIDTH/2) - 300 , (HEIGHT/2) - 200);
     printText("Press SPACEBAR to continue.", midFont, TextBlock, (WIDTH/2) - 300 , (HEIGHT/2));
     
-    SDL_RenderCopy(gRenderer, gTexture, NULL , &speedRect);
+    SDL_SetRenderDrawColor(gRenderer, 200, 0, 255, 255);
+    SDL_RenderFillRect(gRenderer, &speedRect);
+    
+    printImage("speed.png", speedIcon, speedRect, 100, 200);
+    printImage("lives.png", speedIcon, livesRect, 100, 450);
+    printImage("shrink.png", speedIcon, shrinkRect, 100, 700);
     
     return success;
 }
+
 
 bool init(){
     
@@ -363,8 +392,11 @@ bool init(){
 
 int main(){
     
-    startRect.x = 200;
+    startRect.x = 100;
     startRect.y = 700;
+    
+    speedRect.x = 100;
+    speedRect.y = 200;
     
     SDL_Event windowEvent;
     
@@ -377,16 +409,20 @@ int main(){
     
     int xMouse = 0, yMouse = 0;
     
+    outputFile.open("scoreKeeping.txt", ios::app);
+    if (outputFile.fail()){
+        cout << "Output file failed to open.\n";
+        success = false;
+    }
+    
+    if (gameOver == true){
+        outputFile << "The player's final score is: " << score << endl;
+    }
+    
     while(success){
         
         SDL_RenderSetLogicalSize(gRenderer, WIDTH, HEIGHT);
         
-        /*
-        if (SDL_GetTicks() >= 10000){
-            newRound = true;
-            timer.pause();
-        }
-        */
         if (myCountdown == 0){
             lives += 10;
             gRound++;
@@ -405,17 +441,39 @@ int main(){
                     xMouse = windowEvent.button.x;
                     yMouse = windowEvent.button.y;
                     cout << "(" << xMouse << ", " << yMouse << ") "<< endl;
-                    if( ( xMouse > startRect.x ) && ( xMouse < startRect.x + startRect.w ) && ( yMouse > startRect.y ) && ( yMouse < startRect.y + startRect.h ) ){
+                    if( isPlaying == false && ( xMouse > startRect.x ) && ( xMouse < startRect.x + startRect.w ) && ( yMouse > startRect.y ) && ( yMouse < startRect.y + startRect.h ) ){
                         isPlaying = true;
                         cout << "Player pressed Start!\n";
                     }
+                    if( ( xMouse > speedRect.x ) && ( xMouse < speedRect.x + speedRect.w ) && ( yMouse > speedRect.y ) && ( yMouse < speedRect.y + speedRect.h ) ){
+                        if (score >= 500){
+                            blockSpeed += 5;
+                            cout << "yeet";
+                            score -= 500;
+                        } else {
+                            cout << "not enough\n";
+                        }
+                    }
                 }
             }
+            
             if ((block.x != (WIDTH / 2) - (block.w / 2)) || (block.y != (HEIGHT / 2) - (block.h / 2)) ){
                 if (started == false){
                     started = true;
                 }
-                
+            }
+            // Checks for wall bounds.
+            if (block.x <= 0){
+                block.x = 0;
+            }
+            if (block.y <= 0){
+                block.y = 0;
+            }
+            if (block.x >= WIDTH - block.w){
+                block.x = WIDTH - block.w;
+            }
+            if (block.y >= HEIGHT - block.h){
+                block.y = HEIGHT - block.h;
             }
             switch (windowEvent.type){
                 case SDL_KEYDOWN:
@@ -446,10 +504,49 @@ int main(){
                             isPlaying = true;
                             startCountdown = true;
                             stopMovement = false;
+                            
+                            if (gameOver == true){
+                                score = 0;
+                                lives = 20;
+                                gRound = 0;
+                                block.w = 100;
+                                block.h = 100;
+                                myCountdown = 10;
+                                isPlaying = true;
+                            }
+                            break;
+                        }
+                        case SDLK_1: {
+                            if (newRound == true){
+                                if (score >= 500){
+                                    blockSpeed += 5;
+                                    score -= 500;
+                                }
+                            }
+                            break;
+                        }
+                        case SDLK_2: {
+                            if (newRound == true){
+                                if (score >= 100){
+                                    lives += 10;
+                                    score -= 100;
+                                }
+                            }
+                            break;
+                        }
+                        case SDLK_3: {
+                            if (newRound == true){
+                                if (block.w >= 10 && score >= 200){
+                                    block.w -= 5;
+                                    block.h -= 5;
+                                    score -= 200;
+                                }
+                            }
                             break;
                         }
                         case SDLK_c: {
                             lives = 99999;
+                            score = 99999;
                             break;
                         }
                         case SDLK_k: {
@@ -458,13 +555,13 @@ int main(){
                         }
                         case SDLK_t: {
                             myCountdown = 2;
+                            break;
                         }
                     }
                 default:
                     break;
             }
         }
-        
         
         SDL_SetRenderDrawColor(gRenderer, 0, 0, 0, 255);
         SDL_RenderClear(gRenderer);
@@ -475,6 +572,7 @@ int main(){
             startGame();
             delete textSurface;
             inMenu = false;
+            gameOver = false;
         }
         
         if (inMenu){
@@ -486,9 +584,14 @@ int main(){
         }
         
         if(lives == 0){
-            gameOverScreen();
+            gameOver = true;
             inMenu = false;
             isPlaying = false;
+        }
+        
+        if (gameOver){
+            gameOverScreen();
+            stopMovement = false;
         }
         
         //startGame();
@@ -498,6 +601,7 @@ int main(){
         
         // Prevent Memeory Overload
         SDL_DestroyTexture(textureText);
+        SDL_DestroyTexture(speedTexture);
         SDL_DestroyTexture(gTexture);
         SDL_DestroyTexture(text);
     }

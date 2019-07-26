@@ -34,9 +34,7 @@
 		083F2D7B22D5887000FEC2FF /* SDL2.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL2.framework; path = ../../../../Library/Frameworks/SDL2.framework; sourceTree = "<group>"; };
 		083F2D7D22D588C100FEC2FF /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		084CC1B422E3A723008E22AC /* icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = icon.png; sourceTree = "<group>"; };
-		087515F322E976440048F011 /* LTimer.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = LTimer.cpp; sourceTree = "<group>"; };
 		08DD33D422E4EFFE00848F82 /* tomhand.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = tomhand.ttf; sourceTree = "<group>"; };
-		08DD33D522E597DF00848F82 /* Ltimer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Ltimer.h; sourceTree = "<group>"; };
 		08FD952E22E17DAB00F774A3 /* SDL2_ttf.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL2_ttf.framework; path = ../../../../Library/Frameworks/SDL2_ttf.framework; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -73,14 +71,6 @@
 			path = images;
 			sourceTree = "<group>";
 		};
-		082DBDE622E9779500E5412F /* include */ = {
-			isa = PBXGroup;
-			children = (
-				08DD33D522E597DF00848F82 /* Ltimer.h */,
-			);
-			path = include;
-			sourceTree = "<group>";
-		};
 		083F2D6722D5867700FEC2FF = {
 			isa = PBXGroup;
 			children = (
@@ -102,9 +92,7 @@
 			isa = PBXGroup;
 			children = (
 				0868B6BF22DEF76A00E1F435 /* src */,
-				082DBDE622E9779500E5412F /* include */,
 				083F2D7322D5867700FEC2FF /* main.cpp */,
-				087515F322E976440048F011 /* LTimer.cpp */,
 			);
 			path = conqueror;
 			sourceTree = "<group>";
